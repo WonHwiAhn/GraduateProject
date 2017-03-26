@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- editText를 클릭했을 때 -->
+    <item android:state_pressed="true" android:state_enabled="true">
+        <shape>
+            <gradient
+                android:startColor="#fff" android:endColor="#ffffff"
+                android:angle="270" />
+
+            <stroke
+                android:width="0.5dip" android:color="#0101DF"/>
+
+            <corners android:radius="0dip"/>
+
+            <padding
+                android:left="15dip"
+                android:right="15dip"
+                android:top="15dip"
+                android:bottom="15dip" />
+
+        </shape>
+    </item>
+    <!---->
+    <!--editText에 focus잡혔을때-->
+    <item android:state_focused="true" android:state_enabled="true">
+        <shape>
+            <gradient
+                android:startColor="#fff" android:endColor="#ffffff"
+                android:angle="270" />
+
+            <stroke
+                android:width="0.5dip" android:color="#0101DF"/>
+
+            <corners android:radius="0dip"/>
+
+            <padding
+                android:left="15dip"
+                android:right="15dip"
+                android:top="15dip"
+                android:bottom="15dip" />
+
+        </shape>
+    </item>
+    <!---->
+    <!-- enable false상태일 때 -->
+    <item android:state_enabled="false">
+        <shape>
+            <gradient
+                android:startColor="#E6E6E6" android:endColor="#E6E6E6"
+                android:angle="270" />
+
+            <stroke
+                android:width="0.5dip" android:color="#fff"/>
+
+            <corners android:radius="0dip"/>
+
+            <padding
+                android:left="15dip"
+                android:right="15dip"
+                android:top="15dip"
+                android:bottom="15dip" />
+        </shape>
+    </item>
+    <!---->
+    <!-- editText에 focus 안잡혔을 때-->
+    <item android:state_enabled="true">
+        <shape>
+            <gradient
+                android:startColor="#fff" android:endColor="#ffffff"
+                android:angle="270" />
+
+            <stroke
+                android:width="0.5dip" android:color="#A4A4A4"/>
+
+            <corners android:radius="0dip"/>
+
+            <padding
+                android:left="15dip"
+                android:right="15dip"
+                android:top="15dip"
+                android:bottom="15dip" />
+        </shape>
+    </item>
+    <!---->
+</selector>
