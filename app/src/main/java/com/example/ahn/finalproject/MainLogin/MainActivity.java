@@ -126,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
                     if(mapInfo.get(key).equals(pw)){
                         flag=true;
                         Log.d(TAG, "###########################로그인 성공!");
+                        Intent intent = new Intent(getApplicationContext(), LoginComplete.class);
+                        intent.putExtra("id", id);
+                        startActivity(intent);
+                        finish();
                         break;
                     }
                 }else{

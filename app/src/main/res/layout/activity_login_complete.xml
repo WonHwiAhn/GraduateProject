@@ -8,14 +8,6 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <ImageView
-    android:id="@+id/icon"
-    android:layout_alignParentTop="true"
-    android:layout_centerHorizontal="true"
-    android:background="@drawable/main"
-    android:layout_width="50dp"
-    android:layout_height="50dp" />
-
     <include
         layout="@layout/app_bar_main"
         android:layout_width="match_parent"
