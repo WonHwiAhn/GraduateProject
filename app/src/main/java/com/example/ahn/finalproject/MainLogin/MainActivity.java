@@ -79,11 +79,13 @@ public class MainActivity extends AppCompatActivity {
             progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setMessage("Loading Data...");
             progressDialog.show();
+            Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######1111");
         }
 
         @Override
         protected String doInBackground(String... params) {
             try {
+                Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######222222");
                 return getData(params[0]);
             }catch (IOException ex){
                 return "Network error!";
@@ -92,21 +94,22 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-
+            Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######3333333");
             String id = input_email.getText().toString();
             String pw = input_password.getText().toString();
 
             super.onPostExecute(result);
             HashMap<String, String> mapInfo = new HashMap<>();
             //HashMap<Integer, String> mapPw = new HashMap<>();
-
+            Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######3333333" + result);
             //ArrayList<HashMap> userList = new ArrayList<>();
 
             try {
+                Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######" + result);
                 JSONArray jsonArray = new JSONArray(result);
                 for(int i=0; i<jsonArray.length();i++){
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    mapInfo.put(jsonObject.getString("id"), jsonObject.getString("pw"));
+                    mapInfo.put(jsonObject.getString("id"), jsonObject.getString("password"));
                     //mapPw.put(i, jsonObject.getString("pw"));
                     //userList.add(map);
 
@@ -164,17 +167,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private String getData(String urlPath) throws IOException{
+            Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######444444444" + urlPath);
             StringBuilder result = new StringBuilder();
             BufferedReader bufferedReader = null;
             //Initialize and config request
             try {
                 URL url = new URL(urlPath);
+                Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######444444444" + urlPath);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######444444444" + urlPath);
                 urlConnection.setReadTimeout(10000 /*milliseconds*/);
+                Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######444444444" + urlPath);
                 urlConnection.setConnectTimeout(10000);
-                urlConnection.setRequestMethod("GET");
+                Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######444444444" + urlPath);
+                //urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("Content-Type", "application/json"); //set header
+                Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######444444444" + urlPath);
                 urlConnection.connect();
+                Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$$$$$#######444444444" + urlPath);
 
                 //Read data from server
                 InputStream inputStream = urlConnection.getInputStream();
@@ -183,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
                 while((line = bufferedReader.readLine()) != null){
                     result.append(line).append("\n");
                 }
+                Log.d(TAG, "@@@@@@@@@@@"+result);
             }catch (IOException e){
                 return "Network error!";
             } finally {
@@ -196,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loginUser(String email, final String password){
 
-        new GetDataTask().execute("http://192.168.1.4:3000/api/userData");
+        new GetDataTask().execute("http://210.123.254.219:3000");
         //Snackbar snackBar = Snackbar.make(activity_main, "Password length must be over 6", Snackbar.LENGTH_SHORT);
         // snackBar.show();
     }

@@ -14,13 +14,15 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <TextView
+            <EditText
+                android:id="@+id/capsulePrivateLetter"
                 android:gravity="center"
                 android:hint="타임캡슐에 저장할 글을 입력해주세요."
                 android:layout_width="match_parent"
                 android:layout_height="250dp" />
 
             <android.support.design.widget.FloatingActionButton
+                android:onClick="test"
                 android:id="@+id/fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

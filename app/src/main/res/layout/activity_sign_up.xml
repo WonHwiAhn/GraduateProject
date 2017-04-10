@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E6E6E6">
+<RelativeLayout
     android:id="@+id/activity_sign_up"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,17 +14,93 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="#ffffff">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/titleTextView">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="회원 가입"
+            android:textSize="25dp"
+            android:textStyle="bold"/>
+    </LinearLayout>
 
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/main"
-        android:layout_width="100dp"
-        android:layout_height="100dp" />
+    <LinearLayout
+        android:id="@+id/form1"
+        android:orientation="vertical"
+        android:layout_marginTop="15dp"
+        android:layout_below="@id/titleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/userId"
+            android:hint="아이디"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border1"/>
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_below="@+id/icon"
+        <EditText
+            android:id="@+id/userPassword"
+            android:hint="비밀번호 6~16자의 영문, 숫자, 특수문자"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border1"/>
+        <EditText
+            android:id="@+id/userPasswordConfirm"
+            android:hint="비밀번호 재확인"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border1"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_marginTop="15dp"
+        android:layout_below="@id/form1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <EditText
+            android:id="@+id/userName"
+            android:hint="성명"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border1"/>
+
+        <EditText
+            android:id="@+id/userBirth"
+            android:hint="생년월일"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border1"/>
+        <EditText
+            android:id="@+id/userPhone"
+            android:hint="핸드폰 번호 '-'제외 ex)01071188650"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border1"/>
+        <EditText
+            android:id="@+id/userEmail"
+            android:hint="Email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border1"/>
+    </LinearLayout>
+
+    <Button
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/linearLayout2"
+        android:id="@+id/signup_btn_register"
+        android:text="Register"
+        android:background="#263238"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!--<android.support.design.widget.TextInputLayout
+        android:layout_marginTop="1000dp"
         android:id="@+id/signup_input_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -109,6 +189,7 @@
         android:textColor="@color/colorPrimaryDark"
         style="@style/Widget.Design.CoordinatorLayout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content" />-->
 
 </RelativeLayout>
+</ScrollView>

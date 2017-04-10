@@ -4,6 +4,7 @@ package com.example.ahn.finalproject.MainLogin;
  * Created by Ahn on 2017-03-24.
  */
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -14,11 +15,14 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.ahn.finalproject.CapsuleGroup.CapsuleGroupMain;
@@ -32,6 +36,9 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
     private android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
     private android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     private Fragment fragment=null;
+    private EditText capsulePrivateLetter;
+    private LinearLayout linearLayout;
+    CapsuleGroupMain c = new CapsuleGroupMain();
     /**********************************************
      *                 Animation                  *
      **********************************************/
@@ -95,7 +102,6 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         findViewById(R.id.mainBtn2).setOnClickListener(listener);
         findViewById(R.id.mainBtn3).setOnClickListener(listener);
         findViewById(R.id.mainBtn4).setOnClickListener(listener);
-
         /**********************************************
          *               FragmentManage               *
          **********************************************/
@@ -108,8 +114,28 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.content, new Fragment());
         fragmentTransaction.commit();*/
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        linearLayout = (LinearLayout) inflater.inflate( R.layout.capsule_private_main, null );
+
+        /*FloatingActionButton fab = (FloatingActionButton) linearLayout.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View view){
+                capsulePrivateLetter = (EditText) linearLayout.findViewById(R.id.capsulePrivateLetter);
+                Log.d(TAG, "############"+capsulePrivateLetter.getText().toString());
+            }
+        });*/
     }
 
+    /*public void getFromUser(String message) {
+        sendMessage(message);
+    }*/
+
+    public void test(View v){
+        EditText t = (EditText) v.findViewById(R.id.capsulePrivateLetter);
+        String string = t.getText().toString();
+        Log.d(TAG, "@@@@@@@@@@@@@@@@@@@허러ㅓㅓㅓㅓㅓ"+string);
+    }
 
     /**********************************************
      *               버튼 리스너 부분             *
