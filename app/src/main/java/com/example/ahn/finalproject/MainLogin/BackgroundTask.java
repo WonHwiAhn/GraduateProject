@@ -3,25 +3,141 @@ package com.example.ahn.finalproject.MainLogin;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by Ahn on 2017-04-10.
  */
+
 public class BackgroundTask extends AsyncTask<String, Void, String> {
+    AlertDialog alertDialog;
+    Context ctx;
+
+    BackgroundTask(Context ctx){
+        this.ctx = ctx;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        alertDialog = new AlertDialog.Builder(ctx).create();
+        alertDialog.setTitle("Login Information");
+    }
+
+    @Override
+    protected void onProgressUpdate(Void... values) {
+        super.onProgressUpdate(values);
+    }
+
+    @Override
+    protected String doInBackground(String... params) {
+
+        String reg_url = "http://210.123.254.219:3001" + "/reg";
+        String login_url = "http://192.168.1.2/login.php";
+
+        String method = params[0];
+        if(method.equals("register")){
+            String id = params[1];
+            String password = params[2];
+            String name = params[3];
+            String birth = params[4];
+            String phone = params[5];
+            String email = params[6];
+            try {
+                URL url = new URL(reg_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+                String data = URLEncoder.encode("id", "UTF-8") + "=" + URLEncoder.encode(id,"UTF-8") + "&" +
+                        URLEncoder.encode("password", "UTF-8") + "=" + URLEncoder.encode(password,"UTF-8") + "&" +
+                        URLEncoder.encode("name", "UTF-8") + "=" + URLEncoder.encode(name,"UTF-8") + "&" +
+                        URLEncoder.encode("birth", "UTF-8") + "=" + URLEncoder.encode(birth,"UTF-8") + "&" +
+                        URLEncoder.encode("phone", "UTF-8") + "=" + URLEncoder.encode(phone,"UTF-8") + "&" +
+                        URLEncoder.encode("email", "UTF-8") + "=" + URLEncoder.encode(email,"UTF-8");
+
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+                InputStream IS = httpURLConnection.getInputStream();
+                IS.close();
+                return "Registration Success....";
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else if(method.equals("login")){
+            String login_name = params[1];
+            String login_pass = params[2];
+            try {
+                URL url = new URL(login_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String data = URLEncoder.encode("login_name", "UTF-8") + "=" + URLEncoder.encode(login_name,"UTF-8")+"&"+
+                        URLEncoder.encode("login_pass", "UTF-8") + "=" + URLEncoder.encode(login_pass,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                String response = "";
+                String line = "";
+
+                while((line = bufferedReader.readLine()) != null){
+                    response += line;
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return response;
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        if(result.equals("Registration Success...")){
+            Toast.makeText(ctx, result, Toast.LENGTH_LONG).show();
+        }/*else{ //알 수 없는 에러...
+            alertDialog.setMessage(result);
+            alertDialog.show();
+        }*/
+    }
+}
+
+/*public class BackgroundTask extends AsyncTask<String, Void, String> {
 
     AlertDialog alertDialog;
     String mainUrl = "http://210.123.254.219:3001";
@@ -124,6 +240,6 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
             }
         }
         return sb.toString();
-    }
+    }*/
 
-}
+//}

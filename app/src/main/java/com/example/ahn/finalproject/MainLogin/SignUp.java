@@ -1,23 +1,38 @@
 package com.example.ahn.finalproject.MainLogin;
 
-import android.content.Context;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Intent;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
+import android.icu.util.GregorianCalendar;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.net.HttpURLConnection;
+import java.util.Date;
+import java.util.regex.Pattern;
 
-import static com.example.ahn.finalproject.MainLogin.R.id.signup_email;
-import static com.example.ahn.finalproject.MainLogin.R.id.signup_password;
+import static com.example.ahn.finalproject.MainLogin.R.id.view1;
 
 public class SignUp extends AppCompatActivity {
+    //private ProgressDialog loadingDlg;
+    private Dialog loadingDlg;
     final static String TAG = "@@@";
 
     TextView btnLogin, btnForgotPass;
@@ -25,235 +40,260 @@ public class SignUp extends AppCompatActivity {
     RelativeLayout activity_sign_up;
     Snackbar snackbar;
 
-    /**xml 기본 변수**/
+    /**
+     * 추가변수
+     **/
+    int year, month, day;
+    /************/
+
+    /**
+     * xml 기본 변수
+     **/
     EditText userId, userPassword, userPasswordConfirm, userName, userBirth, userPhone, userEmail;
     Button btnSignup;
+    TextView userIdCheck, userPasswordCheck;
+    ImageView userPasswordConfirmImg;
+
     /*****************/
 
-    String mainUrl = "http://210.123.254.219:3000";
-    String response = null;
-    HttpURLConnection conn = null;
-
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        userId = (EditText) findViewById(R.id.userId);
+        userPassword = (EditText) findViewById(R.id.userPassword);
+        userName = (EditText) findViewById(R.id.userName);
+        userBirth = (EditText) findViewById(R.id.userBirth);
+        userPhone = (EditText) findViewById(R.id.userPhone);
+        userEmail = (EditText) findViewById(R.id.userEmail);
+        userPasswordConfirm = (EditText) findViewById(R.id.userPasswordConfirm);
+
+        userIdCheck = (TextView) findViewById(R.id.userIdCheck);
+        userPasswordCheck = (TextView) findViewById(R.id.userpasswordCheck);
+
+        userPasswordConfirmImg = (ImageView) findViewById(view1);
+
+        userId.setFilters(new InputFilter[]{filterAlphaNum}); //숫자와 영어 소문자 필터 넣어줌.
+
+        /***************************************************************
+         *         TextChangedListener이벤트 처리 부분                  *
+         ***************************************************************/
+
+        //아이디 입력 부분 체크 (현재 사실상 필요 없음.)
+        userId.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                //charSequence = 입력된 문자 전체
+                //int 첫 번째 매개변수 (i) = 글자수 -1
+                String str = "abAB12!@#~`!@#$%^&*()_+=-|][}{;:";
+                boolean chk = Pattern.matches("[0-9|a-z]*", charSequence);
+                //0-9|a-z|A-Z|ㄱ-ㅎ|ㅏ-ㅣ|가-힝
+                Log.d("@@@@@@@", chk ? "통과" : "실패");
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
+        //패스워드 입력 부분 체크
+        userPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                //Toast.makeText(getApplicationContext(), charSequence.subSequence(i,i+1), Toast.LENGTH_LONG).show();
+                //백스페이스할 때 문제
+
+                //boolean chk = Pattern.matches("[0-9|a-z]*", charSequence.subSequence(i,i));
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        /***************************************************************/
+
+        /***************************************************************
+         *                  FocusOut 이벤트 처리 부분                  *
+         ***************************************************************/
+
+        userId.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    userIdCheck.setVisibility(View.VISIBLE);
+                    userIdCheck.setText(userIdCheckResult());
+                }
+            }
+        });
+
+        userPassword.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (!hasFocus) {
+                    userPasswordCheck.setVisibility(View.VISIBLE);
+                    userPasswordCheck.setText(userPasswordCheckResult());
+                }
+            }
+        });
+
+        userPasswordConfirm.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (!hasFocus) {
+                   if(userPasswordConfirm.getText().toString().equals(userPassword.getText().toString()))
+                       userPasswordConfirmImg.setVisibility(View.VISIBLE);
+                    else
+                       userPasswordConfirmImg.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        /*******************************************************************/
+        GregorianCalendar calendar = new GregorianCalendar();  // 달력 API 사용하기 위함
         btnSignup = (Button) findViewById(R.id.signup_btn_register);
-        btnLogin = (TextView) findViewById(R.id.signup_btn_login);
-        btnForgotPass = (TextView) findViewById(R.id.signup_btn_forgot_pass);
-        input_email = (EditText) findViewById(signup_email);
-        input_pw= (EditText) findViewById(signup_password);
+
         activity_sign_up = (RelativeLayout) findViewById(R.id.activity_sign_up);
 
         btnSignup.setOnClickListener(listener);
-        btnLogin.setOnClickListener(listener);
-        btnForgotPass.setOnClickListener(listener);
 
-        input_pw.post(new Runnable() {
-            @Override
-            public void run() {
-                input_pw.setFocusableInTouchMode(true);
-                input_pw.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(input_email, 0);
-            }
-        });
+        /**추가된부분**/
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        /***/
     }
 
     Button.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if(view.getId() == R.id.signup_btn_login){
-                startActivity(new Intent(SignUp.this, MainActivity.class));
-                finish();
-            }else if(view.getId() == R.id.signup_btn_forgot_pass){
-                startActivity(new Intent(SignUp.this, ForgotPassword.class));
-                finish();
-            }else if(view.getId() == R.id.signup_btn_register){
-                signUpUser(input_email.getText().toString(), input_pw.getText().toString());
+
+            if (view.getId() == R.id.signup_btn_register) {
+                signUpUser();
             }
         }
     };
 
-    /*class PostDataTask extends AsyncTask<String, Void, String> {
-        ProgressDialog progressDialog;
 
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(SignUp.this);
-            progressDialog.setMessage("Inserting Data...");
-            //progressDialog.show();
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-
-            try{
-                return postData(params[0]);
-            }catch (IOException ex){
-                return "Network error!";
-            }catch(JSONException ex){
-                return "Data Invalid";
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result){
-            super.onPostExecute(result);
-
-            //mResult.setText(result);
-
-            if(progressDialog != null){
-                progressDialog.dismiss();
-            }
-        }
-
-        private String postData (String urlPath) throws IOException, JSONException{
-
-            StringBuffer result = new StringBuffer();
-            BufferedWriter bufferedWriter = null;
-            BufferedReader bufferedReader = null;
-
-            String id = input_email.getText().toString();
-            String pw = input_pw.getText().toString();
-
-            try {
-                //create data to send to server
-                JSONObject dataToSend = new JSONObject();
-                dataToSend.put("id", id);
-                dataToSend.put("password", pw);
-
-                //Initialize and config request, then connect to server.
-                URL url = new URL(urlPath);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setReadTimeout(10000 *//*milliseconds*//*);
-                urlConnection.setConnectTimeout(10000);
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoOutput(true); //enable output (dody data)
-                urlConnection.setRequestProperty("Content-Type", "application/json"); //set header
-                urlConnection.connect();
-
-                //write data into server
-                OutputStream outputStream = urlConnection.getOutputStream();
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
-
-                bufferedWriter.write(dataToSend.toString());
-                bufferedWriter.flush();
-
-                //Read data response from server
-                InputStream inputStream = urlConnection.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    result.append(line).append("\n");
-                    Log.d(TAG, "@@@@@@@@@"+line);
-                }
-            }finally {
-                if(bufferedReader != null){
-                    bufferedReader.close();
-                }
-                if(bufferedWriter != null){
-                    bufferedWriter.close();
-                }
-            }
-            return result.toString();
-        }
-
+    public String userIdCheckResult() {
+        if (userId.getText().toString().length() == 0)
+            return "필수 입력 사항입니다.";
+        else if (userId.getText().toString().length() < 5)
+            return "아이디 조건을 충족하지 못합니다. 5글자 이상 입력하세요.";
+        else if(userId.getText().toString().length() > 10)
+            return "아이디 조건을 충족하지 못합니다. 10글자 이하로 입력하세요.";
+        else
+            return "사용가능한 아이디입니다.";
     }
 
-    public void postData() throws IOException, JSONException{
-        try{
-           *//* URL url = new URL("http://210.123.254.219:3000");
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+    public String userPasswordCheckResult(){
+        if (userPassword.getText().toString().length() == 0)
+            return "필수 입력 사항입니다.";
+        else if (userPassword.getText().toString().length() < 6)
+            return "패스워드 조건을 충족하지 못합니다. 6글자 이상 입력하세요.";
+        else if(userPassword.getText().toString().contains("^[a-z0-9]+$")) //특수문자 1개이상, 대문자 1개이상 체크하는 법
+            return "특수문자 ㅇㅇ";
+        else
+            return "사용가능한 패스워드입니다.";
+    }
 
-            http.setDefaultUseCaches(false);
-            http.setDoInput(true);
-            http.setDoOutput(true);
-            http.setRequestMethod("POST");
+    public void test1(View view) {
+        Toast.makeText(getApplicationContext(), "된다!!", Toast.LENGTH_LONG).show();
+    }
 
-            http.setRequestProperty("content-type", "application/x-www-form-urlencoded");
+    public void userBirthCalendar(View view) {
+        new DatePickerDialog(SignUp.this, dateSetListener, year, month, day).show();
+    }
 
-            StringBuffer buffer = new StringBuffer();
-            buffer.append("id")*//*
-            StringBuffer result = new StringBuffer();
-            BufferedWriter bufferedWriter = null;
-            BufferedReader bufferedReader = null;
+    private DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            long now = System.currentTimeMillis();
+            Date date = new Date(now);
+            // TODO Auto-generated method stub
+            String msg = String.format("%d%d%d", year, monthOfYear + 1, dayOfMonth);
 
-            String id = input_email.getText().toString();
-            String pw = input_pw.getText().toString();
-            try {
-                //create data to send to server
-                JSONObject dataToSend = new JSONObject();
-                dataToSend.put("id", id);
-                dataToSend.put("password", pw);
+            SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyyMd");
+            SimpleDateFormat CurYearFormat = new SimpleDateFormat("yyyy");
+            SimpleDateFormat CurMonthFormat = new SimpleDateFormat("MM");
+            SimpleDateFormat CurDayFormat = new SimpleDateFormat("dd");
 
-                //Initialize and config request, then connect to server.
-                URL url = new URL("http://localhost/register.php");
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setReadTimeout(10000 *//*milliseconds*//*);
-                urlConnection.setConnectTimeout(10000);
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoOutput(true); //enable output (dody data)
-                urlConnection.setRequestProperty("Content-Type", "application/json"); //set header
-                urlConnection.connect();
+            String strCurDate = CurDateFormat.format(date);
+            int strCurYear = Integer.parseInt(CurYearFormat.format(date));
+            int strCurMonth = Integer.parseInt(CurMonthFormat.format(date));
+            int strCurDay = Integer.parseInt(CurDayFormat.format(date));
 
-                //write data into server
-                OutputStream outputStream = urlConnection.getOutputStream();
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
-
-                bufferedWriter.write(dataToSend.toString());
-                bufferedWriter.flush();
-
-                //Read data response from server
-                InputStream inputStream = urlConnection.getInputStream();
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    result.append(line).append("\n");
-                }
-            }finally {
-                if(bufferedReader != null){
-                    bufferedReader.close();
-                }
-                if(bufferedWriter != null){
-                    bufferedWriter.close();
-                }
+            /*SimpleDateFormat CurYearFormat = new SimpleDateFormat("yyyy");
+            String strCurMonth = CurYearFormat.format(date);*/
+            if (strCurYear >= year) {
+                if (strCurMonth >= monthOfYear + 1)
+                    if (strCurDay >= dayOfMonth)
+                        userBirth.setText(msg);
             }
-        }catch(MalformedURLException e){
-
-        }catch(IOException e){
-
         }
-    }*/
+    };
 
-    private void signUpUser(String id, String password){
-        if(input_pw.length() < 10){
-            snackbar = Snackbar.make(activity_sign_up, "Error: 패스워드 10개 이상 입력!!", Snackbar.LENGTH_SHORT);
-            snackbar.show();
-        }else{
-            //String id = input_email.getText().toString();
-            //String password = input_pw.getText().toString();
-            BackgroundTask backgroundTask = new BackgroundTask(this);
 
-            backgroundTask.execute(id, password);
-            //new SignUp.PostDataTask().execute("http://192.168.1.4:3000/api/userData");
-            //new SignUp.PostDataTask().execute("http://210.254.123.219:3000");
-            /*try {
-                postData();
-            }catch(JSONException e){}
-            catch(IOException e){}*/
-            Intent intent = new Intent(getApplicationContext(), SignUpPopup.class);
-            startActivityForResult(intent, 1);
+
+    private void signUpUser() {
+        /**
+         userData정리
+         */
+        String id = userId.getText().toString();
+        String password = userPassword.getText().toString();
+        String name = userName.getText().toString();
+        String birth = userBirth.getText().toString();
+        String phone = userPhone.getText().toString();
+        String email = userEmail.getText().toString();
+
+
+        BackgroundTask backgroundTask = new BackgroundTask(this);
+
+        backgroundTask.execute("register", id, password, name, birth, phone, email);
+
+        Intent intent = new Intent(getApplicationContext(), SignUpPopup.class);
+        startActivityForResult(intent, 1);
+
+    }
+    protected void onStop() {
+        super.onStop();
+        if (loadingDlg != null) {
+            loadingDlg.dismiss();
+            loadingDlg = null;
         }
     }
 
-    protected void onActivityResult(int requestCode, int result, Intent data){
-        if(result==RESULT_OK) {
+    protected void onActivityResult(int requestCode, int result, Intent data) {
+        if (result == RESULT_OK) {
             startActivity(new Intent(SignUp.this, MainActivity.class));
             finish();
         }
     }
+
+    /****************글자 제한 필터 ***************************/
+    public InputFilter filterAlphaNum = new InputFilter() {
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+            Pattern ps = Pattern.compile("^[a-z0-9]+$");
+            if (!ps.matcher(source).matches()) {
+                userIdCheck.setVisibility(View.VISIBLE);
+                userIdCheck.setText("대문자, 특수문자는 입력 불가합니다.");
+                return "";
+            }
+            return null;
+        }
+    };
+    /***********************************************************/
 }
 

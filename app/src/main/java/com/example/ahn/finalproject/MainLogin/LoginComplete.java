@@ -4,33 +4,71 @@ package com.example.ahn.finalproject.MainLogin;
  * Created by Ahn on 2017-03-24.
  */
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.example.ahn.finalproject.CapsuleGroup.CapsuleGroupMain;
-import com.example.ahn.finalproject.CapsulePrivate.CapsulePrivateMain;
+import com.example.ahn.finalproject.Adapter.TabPagerAdapter;
 
 public class LoginComplete extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
-    private TextView navText;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login_complete);
+
+        // Adding Toolbar to the activity
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Initializing the TabLayout
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        tabLayout.addTab(tabLayout.newTab().setText("Tab One"));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab Two"));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab Three"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        // Initializing ViewPager
+        viewPager = (ViewPager) findViewById(R.id.pager);
+
+        // Creating TabPagerAdapter adapter
+        TabPagerAdapter pagerAdapter = new TabPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+
+        // Set TabSelectedListener
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        return false;
+    }
+    /*private TextView navText;
     private Button mainBtn1, mainBtn2, mainBtn3, mainBtn4;
     private final static String TAG = "@@@";
     private android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
@@ -39,9 +77,9 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
     private EditText capsulePrivateLetter;
     private LinearLayout linearLayout;
     CapsuleGroupMain c = new CapsuleGroupMain();
-    /**********************************************
+    *//**********************************************
      *                 Animation                  *
-     **********************************************/
+     **********************************************//*
     //final Animation animation = AnimationUtils.loadAnimation(this, R.anim.anim_slide_in_left);
 
     protected void onCreate(Bundle savedInstanceState){
@@ -56,14 +94,14 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        *//*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });*/
+        });*//*
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -74,62 +112,62 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        /************start****************/
+        *//************start****************//*
         Intent intent = getIntent();
         String userId = intent.getStringExtra("id");
 
-        /*LayoutInflater layoutInflater  = LayoutInflater.from(this);
-        LinearLayout linearLayout = (LinearLayout) layoutInflater.inflate(R.layout.nav_header_main, this, true);*//*
+        *//*LayoutInflater layoutInflater  = LayoutInflater.from(this);
+        LinearLayout linearLayout = (LinearLayout) layoutInflater.inflate(R.layout.nav_header_main, this, true);*//**//*
 
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.nav_header_main, this, false);
 
-        //View header = getLayoutInflater().inflate(R.layout.nav_header_main, null, false);*/
+        //View header = getLayoutInflater().inflate(R.layout.nav_header_main, null, false);*//*
 
-        /**********************************************
+        *//**********************************************
          *       네비게이션 바 설정 부분              *
-         **********************************************/
+         **********************************************//*
         View navHeader = navigationView.getHeaderView(0);
 
         navText = (TextView) navHeader.findViewById(R.id.navText02);
         navText.setText(userId + "님 환영해요:)");
 
-        /**********************************************
+        *//**********************************************
          *               버튼 설정 부분               *
-         **********************************************/
+         **********************************************//*
 
         findViewById(R.id.mainBtn1).setOnClickListener(listener);
         findViewById(R.id.mainBtn2).setOnClickListener(listener);
         findViewById(R.id.mainBtn3).setOnClickListener(listener);
         findViewById(R.id.mainBtn4).setOnClickListener(listener);
-        /**********************************************
+        *//**********************************************
          *               FragmentManage               *
-         **********************************************/
+         **********************************************//*
         fragment = new CapsulePrivateMain();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.container, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-       /* FragmentManager fragmentManager = getSupportFragmentManager();
+       *//* FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.content, new Fragment());
-        fragmentTransaction.commit();*/
+        fragmentTransaction.commit();*//*
 
         LayoutInflater inflater = (LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE );
         linearLayout = (LinearLayout) inflater.inflate( R.layout.capsule_private_main, null );
 
-        /*FloatingActionButton fab = (FloatingActionButton) linearLayout.findViewById(R.id.fab);
+        *//*FloatingActionButton fab = (FloatingActionButton) linearLayout.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 capsulePrivateLetter = (EditText) linearLayout.findViewById(R.id.capsulePrivateLetter);
                 Log.d(TAG, "############"+capsulePrivateLetter.getText().toString());
             }
-        });*/
+        });*//*
     }
 
-    /*public void getFromUser(String message) {
+    *//*public void getFromUser(String message) {
         sendMessage(message);
-    }*/
+    }*//*
 
     public void test(View v){
         EditText t = (EditText) v.findViewById(R.id.capsulePrivateLetter);
@@ -137,9 +175,9 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         Log.d(TAG, "@@@@@@@@@@@@@@@@@@@허러ㅓㅓㅓㅓㅓ"+string);
     }
 
-    /**********************************************
+    *//**********************************************
      *               버튼 리스너 부분             *
-     **********************************************/
+     **********************************************//*
     Button.OnClickListener listener = new View.OnClickListener() {
         public void onClick(View view) {
 
@@ -148,16 +186,16 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
                     Log.d(TAG,"@@@@@@@@@@@@@@@"+"111");
                     //startActivity(new Intent(LoginComplete.this, com.example.ahn.finalproject.PrivateCapsule.MainActivity.class));
                     fragment = new CapsulePrivateMain();
-                    /*CapsulePrivateMain fragment = new CapsulePrivateMain();
+                    *//*CapsulePrivateMain fragment = new CapsulePrivateMain();
                     fragmentTransaction.replace(R.id.container, fragment);
-                    fragmentTransaction.commit();*/
+                    fragmentTransaction.commit();*//*
                     break;
                 case R.id.mainBtn2:
                     Log.d(TAG,"@@@@@@@@@@@@@@@"+"들어옴");
                     fragment = new CapsuleGroupMain();
-                    /*CapsuleGroupMain fragment1 = new CapsuleGroupMain();
+                    *//*CapsuleGroupMain fragment1 = new CapsuleGroupMain();
                     fragmentTransaction.replace(R.id.container, fragment1);
-                    fragmentTransaction.commit();*/
+                    fragmentTransaction.commit();*//*
                     break;
                 case R.id.mainBtn3:
                     break;
@@ -223,5 +261,5 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
+    }*/
 }

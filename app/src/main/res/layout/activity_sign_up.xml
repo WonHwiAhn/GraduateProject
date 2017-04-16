@@ -34,25 +34,81 @@
         android:layout_below="@id/titleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/userId"
-            android:hint="아이디"
-            android:layout_width="match_parent"
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/border1"/>
-
-        <EditText
-            android:id="@+id/userPassword"
-            android:hint="비밀번호 6~16자의 영문, 숫자, 특수문자"
-            android:layout_width="match_parent"
+            android:background="@drawable/border1">
+            <EditText
+                android:id="@+id/userId"
+                android:textSize="15dp"
+                android:maxLength="10"
+                android:hint="아이디 (최대 10자)"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+            <TextView
+                android:id="@+id/userIdCheck"
+                android:visibility="gone"
+                android:textSize="10dp"
+                android:textColor="@color/colorPurple"
+                android:layout_below="@+id/userId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/border1"/>
-        <EditText
-            android:id="@+id/userPasswordConfirm"
-            android:hint="비밀번호 재확인"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border1"/>
+            android:background="@drawable/border1">
+            <EditText
+                android:maxLength="16"
+                android:textSize="15dp"
+                android:id="@+id/userPassword"
+                android:hint="비밀번호 6~16자의 영문, 숫자, 특수문자"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:layout_marginRight="13dp"
+                android:src="@drawable/question_mark"
+                android:layout_alignTop="@+id/userPassword"
+                android:layout_alignBottom="@+id/userPassword"
+                android:layout_alignRight="@+id/userPassword"
+                android:layout_width="25dp"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/userpasswordCheck"
+                android:visibility="visible"
+                android:textSize="10dp"
+                android:textColor="@color/colorPurple"
+                android:layout_below="@+id/userPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <EditText
+                android:textSize="15dp"
+                android:id="@+id/userPasswordConfirm"
+                android:hint="비밀번호 재확인"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border1"/>
+            <ImageView
+                android:visibility="gone"
+                android:layout_alignTop="@+id/userPasswordConfirm"
+                android:layout_alignBottom="@+id/userPasswordConfirm"
+                android:layout_alignRight="@+id/userPasswordConfirm"
+                android:src="@drawable/check"
+                android:id="@+id/view1"
+                android:onClick="test1"
+                android:padding="5dp"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -63,25 +119,43 @@
         android:layout_height="wrap_content"
         android:id="@+id/linearLayout2">
         <EditText
+            android:maxLength="10"
+            android:textSize="15dp"
             android:id="@+id/userName"
             android:hint="성명"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border1"/>
-
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <EditText
+                android:enabled="false"
+                android:textSize="15dp"
+                android:id="@+id/userBirth"
+                android:hint="생년월일"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border1"/>
+            <ImageView
+                android:onClick="userBirthCalendar"
+                android:layout_marginRight="13dp"
+                android:src="@drawable/calendar"
+                android:layout_alignTop="@+id/userBirth"
+                android:layout_alignBottom="@+id/userBirth"
+                android:layout_alignRight="@+id/userBirth"
+                android:layout_width="25dp"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
         <EditText
-            android:id="@+id/userBirth"
-            android:hint="생년월일"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/border1"/>
-        <EditText
+            android:textSize="15dp"
             android:id="@+id/userPhone"
             android:hint="핸드폰 번호 '-'제외 ex)01071188650"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border1"/>
         <EditText
+            android:textSize="15dp"
             android:id="@+id/userEmail"
             android:hint="Email"
             android:layout_width="match_parent"
