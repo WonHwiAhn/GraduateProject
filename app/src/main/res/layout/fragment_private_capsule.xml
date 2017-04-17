@@ -4,11 +4,44 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="This is Tab 1"
-        android:textAppearance="?android:attr/textAppearanceLarge"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="1">
+        <EditText
+            android:background="@null"
+            android:id="@+id/capsulePrivateLetter"
+            android:gravity="center"
+            android:hint="타임캡슐에 저장할 글을 입력해주세요."
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_weight="0.99" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/gallery"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/camera"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/calendar"/>
+
+            <Button
+                android:layout_marginLeft="200dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/save"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -292,7 +292,7 @@ public class SignUp extends AppCompatActivity {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        
+
         if(a.equals(""))
             flag = true;
         else

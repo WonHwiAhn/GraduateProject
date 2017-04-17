@@ -6,4 +6,5 @@
     <color name="colorPurple">#AC58FA</color>
     <color name="mainButton">#A4A4A4</color>
     <color name="mainChar">#819FF7</color>
+    <color name="transparent">#00000000</color>
 </resources>

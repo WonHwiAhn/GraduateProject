@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import com.example.ahn.finalproject.CapsuleGroup.CapsuleGroupMainFragment;
 import com.example.ahn.finalproject.CapsulePrivate.CapsulePrivateMainFragment;
 import com.example.ahn.finalproject.CapsuleShow.CapsuleShowMainFragment;
+import com.example.ahn.finalproject.Option.SetOption;
 
 /**
  * Created by Ahn on 2017-04-16.
@@ -36,6 +37,9 @@ public class TabPagerAdapter extends FragmentStatePagerAdapter {
             case 2:
                 CapsuleShowMainFragment tabFragment3 = new CapsuleShowMainFragment();
                 return tabFragment3;
+            case 3:
+                SetOption tabFragment4 = new SetOption();
+                return tabFragment4;
             default:
                 return null;
         }

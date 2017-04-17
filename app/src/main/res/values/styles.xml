@@ -16,11 +16,14 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="CustomActionBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    <!--<style name="CustomActionBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:windowActionBarOverlay">true</item>
-        <!-- Support library compatibility -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        Support library compatibility
         <item name="windowActionBarOverlay">true</item>
     </style>
+
+    <style name="ActionBarTextColor"-->
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:windowTranslucentStatus">true</item>
@@ -28,7 +31,9 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColor">#000</item>
+    </style>
 
     <style name="Theme.HomeScreen" parent="android:Theme.Holo.NoActionBar.TranslucentDecor">
         <item name="android:windowBackground">@android:color/transparent</item>

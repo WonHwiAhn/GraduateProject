@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 
 import com.example.ahn.finalproject.Adapter.TabPagerAdapter;
 
@@ -28,11 +29,22 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        ActionBar actionBar = getActionBar();
+        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#330000ff")));
+        actionBar.setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#550000ff")));*/
+
+        LinearLayout tabPrivate = (LinearLayout) getLayoutInflater().inflate(R.layout.tab_private_capsule, null);
+        LinearLayout tabGroup = (LinearLayout) getLayoutInflater().inflate(R.layout.tab_group_capsule, null);
+        LinearLayout tabShow = (LinearLayout) getLayoutInflater().inflate(R.layout.tab_show_capsule, null);
+        LinearLayout tabOption = (LinearLayout) getLayoutInflater().inflate(R.layout.tab_option_setting, null);
+
         // Initializing the TabLayout
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
-        tabLayout.addTab(tabLayout.newTab().setText("Tab One"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab Two"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab Three"));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab One").setCustomView(tabPrivate));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab Two").setCustomView(tabGroup));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab Three").setCustomView(tabShow));
+        tabLayout.addTab(tabLayout.newTab().setText("Tab Four").setCustomView(tabOption));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         // Initializing ViewPager
