@@ -3,6 +3,7 @@ package com.example.ahn.finalproject.MainLogin;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.icu.util.GregorianCalendar;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 import static com.example.ahn.finalproject.MainLogin.R.id.view1;
@@ -51,7 +53,7 @@ public class SignUp extends AppCompatActivity {
      **/
     EditText userId, userPassword, userPasswordConfirm, userName, userBirth, userPhone, userEmail;
     Button btnSignup;
-    TextView userIdCheck, userPasswordCheck;
+    TextView userIdCheck, userPasswordCheck, userNameCheck, userEmailCheck;
     ImageView userPasswordConfirmImg;
 
     /*****************/
@@ -71,11 +73,14 @@ public class SignUp extends AppCompatActivity {
         userPasswordConfirm = (EditText) findViewById(R.id.userPasswordConfirm);
 
         userIdCheck = (TextView) findViewById(R.id.userIdCheck);
+        userNameCheck = (TextView) findViewById(R.id.userNameCheck);
         userPasswordCheck = (TextView) findViewById(R.id.userpasswordCheck);
+        userEmailCheck = (TextView) findViewById(R.id.userEmailCheck);
 
         userPasswordConfirmImg = (ImageView) findViewById(view1);
 
         userId.setFilters(new InputFilter[]{filterAlphaNum}); //숫자와 영어 소문자 필터 넣어줌.
+        userName.setFilters(new InputFilter[]{filterAlphaNum1});
 
         /***************************************************************
          *         TextChangedListener이벤트 처리 부분                  *
@@ -193,8 +198,14 @@ public class SignUp extends AppCompatActivity {
             return "아이디 조건을 충족하지 못합니다. 5글자 이상 입력하세요.";
         else if(userId.getText().toString().length() > 10)
             return "아이디 조건을 충족하지 못합니다. 10글자 이하로 입력하세요.";
-        else
-            return "사용가능한 아이디입니다.";
+        else{
+            if(checkUserId()){
+                userIdCheck.setTextColor(Color.CYAN);
+                return "사용 가능한 아이디입니다.";
+            }
+            else
+                return "사용 불가능한 아이디입니다.";
+        }
     }
 
     public String userPasswordCheckResult(){
@@ -265,8 +276,30 @@ public class SignUp extends AppCompatActivity {
 
         Intent intent = new Intent(getApplicationContext(), SignUpPopup.class);
         startActivityForResult(intent, 1);
-
     }
+
+    /*****아이디 중복 디비에서 체크하는 곳******/
+    private boolean checkUserId(){
+        boolean flag = true;
+        BackgroundTask backgroundTask = new BackgroundTask(this);
+
+        String id = userId.getText().toString();
+        String a = null;
+        try {
+            a = backgroundTask.execute("checkUserId", id).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        
+        if(a.equals(""))
+            flag = true;
+        else
+            flag = false;
+        return flag;
+    }
+    /******************************************/
     protected void onStop() {
         super.onStop();
         if (loadingDlg != null) {
@@ -283,12 +316,26 @@ public class SignUp extends AppCompatActivity {
     }
 
     /****************글자 제한 필터 ***************************/
+    //소문자랑 숫자만 입력가능
     public InputFilter filterAlphaNum = new InputFilter() {
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
             Pattern ps = Pattern.compile("^[a-z0-9]+$");
             if (!ps.matcher(source).matches()) {
                 userIdCheck.setVisibility(View.VISIBLE);
                 userIdCheck.setText("대문자, 특수문자는 입력 불가합니다.");
+                return "";
+            }
+            return null;
+        }
+    };
+
+    //소문자, 대문자, 숫자 입력가능
+    public InputFilter filterAlphaNum1 = new InputFilter() {
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+            Pattern ps = Pattern.compile("^[a-zA-Z0-9]+$"); //백스페이스 누를 때도 나오는 문제!!!!!!!!!!!!!!!!
+            if (!ps.matcher(source).matches()) {
+                userNameCheck.setVisibility(View.VISIBLE);
+                userNameCheck.setText("특수문자는 입력 불가합니다.");
                 return "";
             }
             return null;

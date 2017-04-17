@@ -46,6 +46,7 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
 
         String reg_url = "http://210.123.254.219:3001" + "/reg";
         String login_url = "http://192.168.1.2/login.php";
+        String id_check_url = "http://210.123.254.219:3001" + "/userIdCheck";
 
         String method = params[0];
         if(method.equals("register")){
@@ -116,6 +117,40 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
                 httpURLConnection.disconnect();
                 return response;
 
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else if(method.equals("checkUserId")){
+            String id = params[1];
+            System.out.println("들어왔습니다!!!!");
+            try {
+                URL url = new URL(id_check_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String data = URLEncoder.encode("id", "UTF-8") + "=" + URLEncoder.encode(id,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                String response = "";
+                String line = "";
+
+                while((line = bufferedReader.readLine()) != null){
+                    response += line;
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return response;
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
