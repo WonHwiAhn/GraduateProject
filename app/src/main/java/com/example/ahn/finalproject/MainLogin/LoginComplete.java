@@ -4,6 +4,7 @@ package com.example.ahn.finalproject.MainLogin;
  * Created by Ahn on 2017-03-24.
  */
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -15,6 +16,7 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 import com.example.ahn.finalproject.Adapter.TabPagerAdapter;
+import com.example.ahn.finalproject.GlobalValues.Main;
 
 public class LoginComplete extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private TabLayout tabLayout;
@@ -24,6 +26,10 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_complete);
+
+        Intent intent = getIntent();
+        String userId = intent.getStringExtra("id");
+        ((Main)getApplication()).setUserId(userId); //userId값을 글로벌 변수에 넣어줌. getApplicationContext이용
 
         // Adding Toolbar to the activity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -51,7 +57,7 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         viewPager = (ViewPager) findViewById(R.id.pager);
 
         // Creating TabPagerAdapter adapter
-        TabPagerAdapter pagerAdapter = new TabPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+        TabPagerAdapter pagerAdapter = new TabPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount(), userId);
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 

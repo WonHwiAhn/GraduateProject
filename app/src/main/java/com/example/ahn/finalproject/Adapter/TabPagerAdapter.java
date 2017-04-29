@@ -1,5 +1,6 @@
 package com.example.ahn.finalproject.Adapter;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -17,10 +18,12 @@ public class TabPagerAdapter extends FragmentStatePagerAdapter {
 
     // Count number of tabs
     private int tabCount;
+    private String userId;
 
-    public TabPagerAdapter(FragmentManager fm, int tabCount) {
+    public TabPagerAdapter(FragmentManager fm, int tabCount, String userId) {
         super(fm);
         this.tabCount = tabCount;
+        this.userId = userId;
     }
 
     @Override
@@ -30,6 +33,9 @@ public class TabPagerAdapter extends FragmentStatePagerAdapter {
         switch (position) {
             case 0:
                 CapsulePrivateMainFragment tabFragment1 = new CapsulePrivateMainFragment();
+                Bundle args = new Bundle();
+                args.putString(userId, userId);
+                tabFragment1.setArguments(args);
                 return tabFragment1;
             case 1:
                 CapsuleGroupMainFragment tabFragment2 = new CapsuleGroupMainFragment();

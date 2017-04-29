@@ -26,36 +26,39 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
     AlertDialog alertDialog;
     Context ctx;
 
-    BackgroundTask(Context ctx){
+    public BackgroundTask(Context ctx){
         this.ctx = ctx;
     }
 
     @Override
-    protected void onPreExecute() {
+    public void onPreExecute() {
         alertDialog = new AlertDialog.Builder(ctx).create();
         alertDialog.setTitle("Login Information");
     }
 
     @Override
-    protected void onProgressUpdate(Void... values) {
+    public void onProgressUpdate(Void... values) {
         super.onProgressUpdate(values);
     }
 
     @Override
-    protected String doInBackground(String... params) {
+    public String doInBackground(String... params) {
 
         String reg_url = "http://210.123.254.219:3001" + "/reg";
         String login_url = "http://192.168.1.2/login.php";
         String id_check_url = "http://210.123.254.219:3001" + "/userIdCheck";
+        String img_url = "http://210.123.254.219:3001" + "/makePrivateCapsule";
 
         String method = params[0];
         if(method.equals("register")){
             String id = params[1];
             String password = params[2];
             String name = params[3];
-            String birth = params[4];
-            String phone = params[5];
-            String email = params[6];
+            //String birth = params[4];
+            String phone = params[4];
+            String email = params[5];
+            String profileImg = params[6];
+            String profileImgName = params[7];
             try {
                 URL url = new URL(reg_url);
                 HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
@@ -67,9 +70,11 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
                 String data = URLEncoder.encode("id", "UTF-8") + "=" + URLEncoder.encode(id,"UTF-8") + "&" +
                         URLEncoder.encode("password", "UTF-8") + "=" + URLEncoder.encode(password,"UTF-8") + "&" +
                         URLEncoder.encode("name", "UTF-8") + "=" + URLEncoder.encode(name,"UTF-8") + "&" +
-                        URLEncoder.encode("birth", "UTF-8") + "=" + URLEncoder.encode(birth,"UTF-8") + "&" +
+                        //URLEncoder.encode("birth", "UTF-8") + "=" + URLEncoder.encode(birth,"UTF-8") + "&" +
                         URLEncoder.encode("phone", "UTF-8") + "=" + URLEncoder.encode(phone,"UTF-8") + "&" +
-                        URLEncoder.encode("email", "UTF-8") + "=" + URLEncoder.encode(email,"UTF-8");
+                        URLEncoder.encode("email", "UTF-8") + "=" + URLEncoder.encode(email,"UTF-8") + "&" +
+                        URLEncoder.encode("profileImg", "UTF-8") + "=" + URLEncoder.encode(profileImg,"UTF-8") + "&" +
+                        URLEncoder.encode("profileImgName", "UTF-8") + "=" + URLEncoder.encode(profileImgName,"UTF-8");
 
                 bufferedWriter.write(data);
                 bufferedWriter.flush();
@@ -156,13 +161,55 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else if(method.equals("makePrivateCapsule")){
+            String img = params[1];
+            String imgName = params[2];
+            String capsuleContent = params[3];
+            String userId = params[4];
+            String makeDate = params[5];
+            try {
+                URL url = new URL(img_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String data = URLEncoder.encode("img", "UTF-8") + "=" + URLEncoder.encode(img,"UTF-8")+"&"+
+                        URLEncoder.encode("imgName", "UTF-8") + "=" + URLEncoder.encode(imgName,"UTF-8")+"&"+
+                        URLEncoder.encode("capsuleContent", "UTF-8") + "=" + URLEncoder.encode(capsuleContent,"UTF-8")+"&"+
+                        URLEncoder.encode("owner", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8")+"&"+
+                        URLEncoder.encode("makedate", "UTF-8") + "=" + URLEncoder.encode(makeDate,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                String response = "";
+                String line = "";
+
+                while((line = bufferedReader.readLine()) != null){
+                    response += line;
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return response;
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return null;
     }
 
     @Override
-    protected void onPostExecute(String result) {
+    public void onPostExecute(String result) {
         if(result.equals("Registration Success...")){
             Toast.makeText(ctx, result, Toast.LENGTH_LONG).show();
         }/*else{ //알 수 없는 에러...

@@ -27,11 +27,33 @@
             android:textStyle="bold"/>
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_below="@+id/titleTextView"
+        android:id="@+id/profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:src="@drawable/anonymous"
+            android:id="@+id/profileimg"
+            android:background="@drawable/border2"
+            android:layout_centerHorizontal="true"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+        <Button
+            android:id="@+id/profileupload"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_below="@+id/profileimg"
+            android:text="사진올리기"
+            />
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/form1"
         android:orientation="vertical"
         android:layout_marginTop="15dp"
-        android:layout_below="@id/titleTextView"
+        android:layout_below="@id/profile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <RelativeLayout

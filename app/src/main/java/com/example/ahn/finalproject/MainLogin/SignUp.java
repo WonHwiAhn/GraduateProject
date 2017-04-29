@@ -1,14 +1,17 @@
 package com.example.ahn.finalproject.MainLogin;
 
-import android.app.DatePickerDialog;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.icu.text.SimpleDateFormat;
-import android.icu.util.Calendar;
-import android.icu.util.GregorianCalendar;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,23 +19,26 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Date;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 import static com.example.ahn.finalproject.MainLogin.R.id.view1;
 
 public class SignUp extends AppCompatActivity {
+    final static int REQ_CODE_SELECT_IMAGE = 100;
     //private ProgressDialog loadingDlg;
     private Dialog loadingDlg;
     final static String TAG = "@@@";
@@ -46,13 +52,20 @@ public class SignUp extends AppCompatActivity {
      * 추가변수
      **/
     int year, month, day;
+    Uri fileUri;
+    Bitmap image_bitmap;
+    Bitmap bitmap;
+    String imgPath;
+    String imgName;
+    StringBuilder encodedString;
+    ImageView profileimg;
     /************/
 
     /**
      * xml 기본 변수
      **/
     EditText userId, userPassword, userPasswordConfirm, userName, userBirth, userPhone, userEmail;
-    Button btnSignup;
+    Button btnSignup, btnUploadProfile;
     TextView userIdCheck, userPasswordCheck, userNameCheck, userEmailCheck;
     ImageView userPasswordConfirmImg;
 
@@ -166,17 +179,19 @@ public class SignUp extends AppCompatActivity {
         });
 
         /*******************************************************************/
-        GregorianCalendar calendar = new GregorianCalendar();  // 달력 API 사용하기 위함
+        //GregorianCalendar calendar = new GregorianCalendar();  // 달력 API 사용하기 위함
         btnSignup = (Button) findViewById(R.id.signup_btn_register);
+        btnUploadProfile = (Button) findViewById(R.id.profileupload);
 
         activity_sign_up = (RelativeLayout) findViewById(R.id.activity_sign_up);
 
         btnSignup.setOnClickListener(listener);
+        btnUploadProfile.setOnClickListener(listener);
 
         /**추가된부분**/
-        year = calendar.get(Calendar.YEAR);
+        /*year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
-        day = calendar.get(Calendar.DAY_OF_MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);*/
         /***/
     }
 
@@ -186,11 +201,18 @@ public class SignUp extends AppCompatActivity {
 
             if (view.getId() == R.id.signup_btn_register) {
                 signUpUser();
+            }else if(view.getId() == R.id.profileupload){
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+                intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQ_CODE_SELECT_IMAGE);
             }
         }
     };
 
-
+    /***************************************************************
+     *                  userId 입력값 체크하는 곳                  *
+     ***************************************************************/
     public String userIdCheckResult() {
         if (userId.getText().toString().length() == 0)
             return "필수 입력 사항입니다.";
@@ -207,7 +229,9 @@ public class SignUp extends AppCompatActivity {
                 return "사용 불가능한 아이디입니다.";
         }
     }
-
+    /***************************************************************
+     *                  userPW 입력값 체크하는 곳                  *
+     ***************************************************************/
     public String userPasswordCheckResult(){
         if (userPassword.getText().toString().length() == 0)
             return "필수 입력 사항입니다.";
@@ -222,9 +246,18 @@ public class SignUp extends AppCompatActivity {
     public void test1(View view) {
         Toast.makeText(getApplicationContext(), "된다!!", Toast.LENGTH_LONG).show();
     }
-
-    public void userBirthCalendar(View view) {
-        new DatePickerDialog(SignUp.this, dateSetListener, year, month, day).show();
+    /***************************************************************
+     *                  user 생년월일 입력값 체크하는 곳           *
+     ***************************************************************/
+/*    public void userBirthCalendar(View view) {
+        Context context = new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light_Dialog);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // API 24 이상일 경우 시스템 기본 테마 사용
+            context = this;
+        }
+        DatePickerDialog datePickerDialog = new DatePickerDialog(context, dateSetListener, year, month, day);
+        datePickerDialog.show();
+        //new DatePickerDialog(SignUp.this, dateSetListener, year, month, day).show();
     }
 
     private DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -246,36 +279,27 @@ public class SignUp extends AppCompatActivity {
             int strCurMonth = Integer.parseInt(CurMonthFormat.format(date));
             int strCurDay = Integer.parseInt(CurDayFormat.format(date));
 
-            /*SimpleDateFormat CurYearFormat = new SimpleDateFormat("yyyy");
-            String strCurMonth = CurYearFormat.format(date);*/
+            *//*SimpleDateFormat CurYearFormat = new SimpleDateFormat("yyyy");
+            String strCurMonth = CurYearFormat.format(date);*//*
+            *//***오늘보다 미래의 값은 설정할 수 없게 만들어놓는 부분**//*
             if (strCurYear >= year) {
                 if (strCurMonth >= monthOfYear + 1)
                     if (strCurDay >= dayOfMonth)
                         userBirth.setText(msg);
             }
+
         }
-    };
+    };*/
 
 
-
+//회원가입 버튼 눌렀을 떄 호출되는 함수
     private void signUpUser() {
         /**
          userData정리
          */
-        String id = userId.getText().toString();
-        String password = userPassword.getText().toString();
-        String name = userName.getText().toString();
-        String birth = userBirth.getText().toString();
-        String phone = userPhone.getText().toString();
-        String email = userEmail.getText().toString();
 
+        encodeImagetoString();
 
-        BackgroundTask backgroundTask = new BackgroundTask(this);
-
-        backgroundTask.execute("register", id, password, name, birth, phone, email);
-
-        Intent intent = new Intent(getApplicationContext(), SignUpPopup.class);
-        startActivityForResult(intent, 1);
     }
 
     /*****아이디 중복 디비에서 체크하는 곳******/
@@ -308,18 +332,11 @@ public class SignUp extends AppCompatActivity {
         }
     }
 
-    protected void onActivityResult(int requestCode, int result, Intent data) {
-        if (result == RESULT_OK) {
-            startActivity(new Intent(SignUp.this, MainActivity.class));
-            finish();
-        }
-    }
-
     /****************글자 제한 필터 ***************************/
     //소문자랑 숫자만 입력가능
     public InputFilter filterAlphaNum = new InputFilter() {
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            Pattern ps = Pattern.compile("^[a-z0-9]+$");
+            Pattern ps = Pattern.compile("^[a-z0-9]+$"); //a-z0-9\n
             if (!ps.matcher(source).matches()) {
                 userIdCheck.setVisibility(View.VISIBLE);
                 userIdCheck.setText("대문자, 특수문자는 입력 불가합니다.");
@@ -342,5 +359,112 @@ public class SignUp extends AppCompatActivity {
         }
     };
     /***********************************************************/
+
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if(requestCode == REQ_CODE_SELECT_IMAGE)
+        {
+            if(resultCode == Activity.RESULT_OK)
+            {
+                try {
+                    //cpa.test(data);
+
+                    //Uri에서 이미지 이름을 얻어온다.
+                    String name_Str = getImageNameToUri(data.getData());
+                    imgName=name_Str;
+                    Log.e("fileName : ",name_Str);
+                    //이미지 데이터를 비트맵으로 받아온다.
+                    image_bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                    //bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                    profileimg = (ImageView) findViewById(R.id.profileimg);
+                    profileimg.setImageBitmap(image_bitmap);
+                    //Toast.makeText(getBaseContext(), "name_Str : "+name_Str , Toast.LENGTH_SHORT).show();
+
+
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }else if(resultCode == RESULT_OK) {
+                startActivity(new Intent(SignUp.this, MainActivity.class));
+                finish();
+            }
+    }
+
+    public void encodeImagetoString() {
+        Log.d(TAG, "@@@@@@@들어옴1111");
+        new AsyncTask<Object, Object, String>() {
+
+            public void onPreExecute() {
+
+            };
+
+            @Override
+            public String doInBackground(Object... params) {
+                Log.d(TAG, "@@@@@@@들어옴2222");
+                BitmapFactory.Options options = null;
+                options = new BitmapFactory.Options();
+                options.inSampleSize = 3;
+                bitmap = BitmapFactory.decodeFile(imgPath,options);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                // Must compress the Image to reduce image size to make upload easy
+                bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
+                byte[] byte_arr = stream.toByteArray();
+                // Encode Image to String
+                encodedString = new StringBuilder(Base64.encodeToString(byte_arr, 0));
+                Log.e("mainSideImg","");
+                Log.e("mainSideImg",""+encodedString.length());
+                return "";
+            }
+
+            @Override
+            public void onPostExecute(String msg) {
+                // Trigger Image upload
+                makeHTTPCall();
+            }
+        }.execute(null, null, null);
+        Log.d(TAG, "@@@@@@@들어옴3333");
+    }
+
+    public void makeHTTPCall(){
+        String id = userId.getText().toString();
+        String password = userPassword.getText().toString();
+        String name = userName.getText().toString();
+        String birth = userBirth.getText().toString();
+        String phone = userPhone.getText().toString();
+        String email = userEmail.getText().toString();
+
+        BackgroundTask backgroundTask = new BackgroundTask(this);
+
+        //backgroundTask.execute("register", id, password, name, birth, phone, email, encodedString.toString(),imgName);
+        backgroundTask.execute("register", id, password, name, phone, email,  encodedString.toString(),imgName);
+        //아이디, 패스워드, 이름, 생년월일, 번호, 이메일 background에 보냄
+        //나중에 backgroundTask.execute의 리턴 값을 받고 그 값에 따라 popup실행
+        Intent intent = new Intent(getApplicationContext(), SignUpPopup.class);
+        startActivityForResult(intent, 1);
+    }
+
+    //파일명 추출
+    public String getImageNameToUri(Uri data)
+    {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getContentResolver().query(data, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+
+        cursor.moveToFirst();
+
+        imgPath = cursor.getString(column_index);
+        imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
+        Log.e("ImageName : ",imgName);
+        return imgName;
+    }
 }
 
