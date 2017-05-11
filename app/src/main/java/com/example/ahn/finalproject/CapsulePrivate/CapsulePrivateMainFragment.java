@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Ahn on 2017-04-16.
@@ -138,7 +139,7 @@ public class CapsulePrivateMainFragment extends Fragment {
                 try {
                     //cpa.test(data);
 
-                   //Uri에서 이미지 이름을 얻어온다.
+                    //Uri에서 이미지 이름을 얻어온다.
                     String name_Str = getImageNameToUri(data.getData());
                     imgName=name_Str;
                     Log.e("fileName : ",name_Str);
@@ -198,7 +199,7 @@ public class CapsulePrivateMainFragment extends Fragment {
                         options);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 // Must compress the Image to reduce image size to make upload easy
-                bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
                 byte[] byte_arr = stream.toByteArray();
                 // Encode Image to String
                 encodedString = new StringBuilder(Base64.encodeToString(byte_arr, 0));
@@ -221,7 +222,17 @@ public class CapsulePrivateMainFragment extends Fragment {
         String userId = Main.getUserId();
         String date = getDate();
         Log.e("Main","excute start");
-        backgroundTask.execute("makePrivateCapsule",encodedString.toString(),imgName,capsuleContent, userId, date);
+        try {
+            String result = backgroundTask.execute("makePrivateCapsule",encodedString.toString(),imgName,capsuleContent, userId, date).get();
+            if(result.equals("success")){
+                image.setImageBitmap(null);
+                capsulePrivateLetter.setText("");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     //파일명 추출
@@ -234,6 +245,7 @@ public class CapsulePrivateMainFragment extends Fragment {
         cursor.moveToFirst();
 
         imgPath = cursor.getString(column_index);
+        //imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
         imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
         Log.e("ImageName : ",imgName);
         return imgName;

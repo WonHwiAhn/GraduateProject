@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/friendRelative"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/searchFriend"
+            android:background="@drawable/border1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="     친구의 아이디 검색"
+            android:textSize="15dp"/>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/search_button"
+            android:layout_alignTop="@+id/searchFriend"
+            android:layout_alignBottom="@+id/searchFriend"
+            android:layout_alignLeft="@+id/searchFriend"/>
+
+        <TextView
+            android:layout_below="@+id/searchFriend"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border1"
+            android:text="검색결과"
+            android:textColor="@color/colorBlack"
+            android:textStyle="bold"
+            android:enabled="false"/>
+    </RelativeLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/friendList">
+        </ListView>
+    </ScrollView>
+</LinearLayout>

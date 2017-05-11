@@ -1,7 +1,9 @@
 package com.example.ahn.finalproject.MainLogin;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -15,6 +17,7 @@ import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -23,6 +26,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -32,6 +36,11 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
@@ -66,7 +75,7 @@ public class SignUp extends AppCompatActivity {
      **/
     EditText userId, userPassword, userPasswordConfirm, userName, userBirth, userPhone, userEmail;
     Button btnSignup, btnUploadProfile;
-    TextView userIdCheck, userPasswordCheck, userNameCheck, userEmailCheck;
+    TextView userIdCheck, userPasswordCheck, userNameCheck, userEmailCheck, userPhoneCheck;
     ImageView userPasswordConfirmImg;
 
     /*****************/
@@ -89,6 +98,7 @@ public class SignUp extends AppCompatActivity {
         userNameCheck = (TextView) findViewById(R.id.userNameCheck);
         userPasswordCheck = (TextView) findViewById(R.id.userpasswordCheck);
         userEmailCheck = (TextView) findViewById(R.id.userEmailCheck);
+        userPhoneCheck = (TextView) findViewById(R.id.userPhoneCheck);
 
         userPasswordConfirmImg = (ImageView) findViewById(view1);
 
@@ -178,8 +188,26 @@ public class SignUp extends AppCompatActivity {
             }
         });
 
+        userEmail.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            public void onFocusChange(View view, boolean hasFocus){
+                if(!hasFocus){
+                    userEmailCheck.setVisibility(View.VISIBLE);
+                    userEmailCheck.setText(userEmailCheckResult());
+                }
+            }
+        });
+
+        userPhone.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            public void onFocusChange(View view, boolean hasFocus){
+                if(!hasFocus){
+                    userPhoneCheck.setVisibility(View.VISIBLE);
+                    userPhoneCheck.setText(userPhoneCheckResult());
+                }
+            }
+        });
+
         /*******************************************************************/
-        //GregorianCalendar calendar = new GregorianCalendar();  // 달력 API 사용하기 위함
+        GregorianCalendar calendar = new GregorianCalendar();  // 달력 API 사용하기 위함
         btnSignup = (Button) findViewById(R.id.signup_btn_register);
         btnUploadProfile = (Button) findViewById(R.id.profileupload);
 
@@ -189,9 +217,9 @@ public class SignUp extends AppCompatActivity {
         btnUploadProfile.setOnClickListener(listener);
 
         /**추가된부분**/
-        /*year = calendar.get(Calendar.YEAR);
+        year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
-        day = calendar.get(Calendar.DAY_OF_MONTH);*/
+        day = calendar.get(Calendar.DAY_OF_MONTH);
         /***/
     }
 
@@ -214,33 +242,61 @@ public class SignUp extends AppCompatActivity {
      *                  userId 입력값 체크하는 곳                  *
      ***************************************************************/
     public String userIdCheckResult() {
-        if (userId.getText().toString().length() == 0)
+        if (userId.getText().toString().length() == 0) {
+            userIdCheck.setTextColor(Color.RED);
             return "필수 입력 사항입니다.";
-        else if (userId.getText().toString().length() < 5)
+        }
+        else if (userId.getText().toString().length() < 5) {
+            userIdCheck.setTextColor(Color.RED);
             return "아이디 조건을 충족하지 못합니다. 5글자 이상 입력하세요.";
-        else if(userId.getText().toString().length() > 10)
+        }
+        else if(userId.getText().toString().length() > 10) {
+            userIdCheck.setTextColor(Color.RED);
             return "아이디 조건을 충족하지 못합니다. 10글자 이하로 입력하세요.";
+        }
         else{
             if(checkUserId()){
                 userIdCheck.setTextColor(Color.CYAN);
                 return "사용 가능한 아이디입니다.";
             }
-            else
+            else {
+                userIdCheck.setTextColor(Color.RED);
                 return "사용 불가능한 아이디입니다.";
+            }
         }
     }
     /***************************************************************
      *                  userPW 입력값 체크하는 곳                  *
      ***************************************************************/
-    public String userPasswordCheckResult(){
-        if (userPassword.getText().toString().length() == 0)
+    public String userPasswordCheckResult() {
+        //패스워드 한 글자씩 읽어서 arrayList에 저장하는 곳
+        ArrayList<String> arrayList = new ArrayList<>();
+        for (int i = 0; i < userPassword.getText().toString().length(); i++) {
+            arrayList.add(userPassword.getText().toString().substring(i, i + 1));
+        }
+
+        Pattern ps = Pattern.compile("^[`~!@#$%^&*()-_=+|;:'\",.<>/?]+$"); //특수문자 정규식
+
+        if (userPassword.getText().toString().length() == 0) {
+            userPasswordCheck.setTextColor(Color.RED);
             return "필수 입력 사항입니다.";
-        else if (userPassword.getText().toString().length() < 6)
+        }
+        else if (userPassword.getText().toString().length() < 6) {
+            userPasswordCheck.setTextColor(Color.RED);
             return "패스워드 조건을 충족하지 못합니다. 6글자 이상 입력하세요.";
-        else if(userPassword.getText().toString().contains("^[a-z0-9]+$")) //특수문자 1개이상, 대문자 1개이상 체크하는 법
-            return "특수문자 ㅇㅇ";
-        else
+        }
+        /*else if (!userPassword.getText().toString().matches("^[A-Z]+$")){ //특수문자 1개이상, 대문자 1개이상 체크하는 법
+            if(!userPassword.getText().toString().matches("^[a-zA-Z0-9`~!@#$%^&*()-_=+|;:'\",.<>/?]+$"))
+                return "사용가능";
+            return "특수문자 ㅇ11ㅇ";
+        }*/
+        else if (ps.matcher(userPassword.getText().toString()).matches()) {
+            return "sdsdsd";
+        }
+        else {
+            userPasswordCheck.setTextColor(Color.CYAN);
             return "사용가능한 패스워드입니다.";
+        }
     }
 
     public void test1(View view) {
@@ -249,7 +305,7 @@ public class SignUp extends AppCompatActivity {
     /***************************************************************
      *                  user 생년월일 입력값 체크하는 곳           *
      ***************************************************************/
-/*    public void userBirthCalendar(View view) {
+    public void userBirthCalendar(View view) {
         Context context = new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light_Dialog);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             // API 24 이상일 경우 시스템 기본 테마 사용
@@ -279,9 +335,9 @@ public class SignUp extends AppCompatActivity {
             int strCurMonth = Integer.parseInt(CurMonthFormat.format(date));
             int strCurDay = Integer.parseInt(CurDayFormat.format(date));
 
-            *//*SimpleDateFormat CurYearFormat = new SimpleDateFormat("yyyy");
-            String strCurMonth = CurYearFormat.format(date);*//*
-            *//***오늘보다 미래의 값은 설정할 수 없게 만들어놓는 부분**//*
+            /*//*SimpleDateFormat CurYearFormat = new SimpleDateFormat("yyyy");
+            String strCurMonth = CurYearFormat.format(date);*/
+            //***오늘보다 미래의 값은 설정할 수 없게 만들어놓는 부분**//*
             if (strCurYear >= year) {
                 if (strCurMonth >= monthOfYear + 1)
                     if (strCurDay >= dayOfMonth)
@@ -289,7 +345,40 @@ public class SignUp extends AppCompatActivity {
             }
 
         }
-    };*/
+    };
+
+    /***************************************************************
+     *                  userEmail입력값 체크하는 곳                  *
+     ***************************************************************/
+
+    public String userEmailCheckResult(){
+        Pattern ps_email = Pattern.compile("[\\w\\~\\-\\.]+@[\\w\\~\\-]+(\\.[\\w\\~\\-]+)+");
+        if(ps_email.matcher(userEmail.getText().toString()).matches()) {
+            userEmailCheck.setTextColor(Color.CYAN);
+            return "올바른 이메일 입니다.";
+        }
+        else{
+            userEmailCheck.setTextColor(Color.RED);
+            return "이메일 형식이 아닙니다.";
+        }
+    }
+
+    public String userPhoneCheckResult(){
+        String phoneNum = userPhone.getText().toString();
+        String frontNum = phoneNum.substring(0,3);
+        Toast.makeText(getApplicationContext(),frontNum,Toast.LENGTH_LONG).show();
+        if(!frontNum.equals("010")){
+            userPhoneCheck.setTextColor(Color.RED);
+            return "올바른 핸드폰 번호를 입력해주세요.";
+        }else if(phoneNum.length() <11) {
+            userPhoneCheck.setTextColor(Color.RED);
+            return "올바른 핸드폰 번호를 입력해주세요.";
+        }
+        else{
+            userPhoneCheck.setTextColor(Color.CYAN);
+            return "올바른 핸드폰 번호입니다.";
+        }
+    }
 
 
 //회원가입 버튼 눌렀을 떄 호출되는 함수
@@ -317,7 +406,7 @@ public class SignUp extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        if(a.equals(""))
+        if(a.equals("no"))
             flag = true;
         else
             flag = false;
@@ -349,10 +438,15 @@ public class SignUp extends AppCompatActivity {
     //소문자, 대문자, 숫자 입력가능
     public InputFilter filterAlphaNum1 = new InputFilter() {
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            Pattern ps = Pattern.compile("^[a-zA-Z0-9]+$"); //백스페이스 누를 때도 나오는 문제!!!!!!!!!!!!!!!!
+            Pattern ps = Pattern.compile("^[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]+$"); //백스페이스 누를 때도 나오는 문제!!!!!!!!!!!!!!!!
             if (!ps.matcher(source).matches()) {
                 userNameCheck.setVisibility(View.VISIBLE);
                 userNameCheck.setText("특수문자는 입력 불가합니다.");
+                if(end!=0){
+                    userName.setText(source.subSequence(start, end-1));
+                    userName.setSelection(end-1);
+                }
+                Toast.makeText(getApplicationContext(), ""+source + "start" + dstart +"    end" + dend,Toast.LENGTH_LONG).show();
                 return "";
             }
             return null;
@@ -462,6 +556,7 @@ public class SignUp extends AppCompatActivity {
         cursor.moveToFirst();
 
         imgPath = cursor.getString(column_index);
+        //imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
         imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
         Log.e("ImageName : ",imgName);
         return imgName;

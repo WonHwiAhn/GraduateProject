@@ -31,7 +31,7 @@
             android:alpha="0.87"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="회원가입 성공!!"
+            android:text="진짜로 종료할꺼야??"
             android:textSize="20dp"/>
     </LinearLayout>
 
@@ -49,6 +49,18 @@
             android:onClick="btnPositive"
             android:layout_weight="1"
             android:text="확인"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="@color/mainChar"
+            android:padding="16dp"
+            android:gravity="center"
+            android:background="#00000000"
+            android:layout_width="match_parent"
+            android:layout_height="53dp" />
+        <Button
+            android:onClick="btnNegative"
+            android:layout_weight="1"
+            android:text="아니요"
             android:textStyle="bold"
             android:textSize="15sp"
             android:textColor="@color/mainChar"

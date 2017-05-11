@@ -5,22 +5,45 @@ package com.example.ahn.finalproject.MainLogin;
  */
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.ahn.finalproject.Adapter.TabPagerAdapter;
+import com.example.ahn.finalproject.Friend.AddFriend;
+import com.example.ahn.finalproject.GlobalValues.ExitPopup;
 import com.example.ahn.finalproject.GlobalValues.Main;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.concurrent.ExecutionException;
 
 public class LoginComplete extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private String[] listItem={};
+    private String result;
+    private static final int ADD_FRIED_CODE = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +52,10 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
 
         Intent intent = getIntent();
         String userId = intent.getStringExtra("id");
-        ((Main)getApplication()).setUserId(userId); //userId값을 글로벌 변수에 넣어줌. getApplicationContext이용
+        String userIdx = intent.getStringExtra("idx");
+
+        ((Main) getApplication()).setUserId(userId); //userId값을 글로벌 변수에 넣어줌. getApplicationContext이용
+        ((Main) getApplication()).setUserIdx(userIdx);
 
         // Adding Toolbar to the activity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -80,6 +106,32 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
             }
         });
 
+        /********************************************************
+         *          친구 추가 수정 부분
+         ******************************************************/
+        Friend friend = new Friend();
+        try {
+           result = friend.execute().get();
+        } catch (InterruptedException e) { e.printStackTrace(); }
+        catch (ExecutionException e) {e.printStackTrace();}
+
+        if(!result.equals("no")) {
+            listItem = result.split(",");
+
+            //ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listItem);
+            ListView listView = (ListView) findViewById(R.id.navListView);
+            listView.setAdapter(
+                    new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItem)
+            );
+        }
+    } //onCreate end
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Toast.makeText(getApplicationContext(), "232323", Toast.LENGTH_LONG).show();
+        super.onActivityResult(requestCode,resultCode,data);
+        if (resultCode == RESULT_CANCELED) {
+            finish();
+        }
     }
 
     @Override
@@ -280,4 +332,66 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }*/
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+        Intent intent = new Intent(getApplicationContext(), ExitPopup.class);
+        startActivityForResult(intent, 1);
+    }
+
+    /**************친구 데이터 받아오는 AsyncTask********************/
+    /*****************************************************************/
+
+    class Friend extends AsyncTask<String, Integer, String> {
+        URL url;
+        //HttpURLConnection conn;
+        String line;
+        int menuSeq;
+
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            BufferedReader bufferedReader = null;
+            line = "";
+            String userIdx = Main.getUserIdx();
+            Log.d("@@@@@", "idx@@@"+userIdx);
+            try {
+                url = new URL("http://210.123.254.219:3001" + "/getFriend");
+                //conn = (HttpURLConnection) url.openConnection();
+
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+                String data = URLEncoder.encode("idx", "UTF-8") + "=" + URLEncoder.encode(userIdx,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
+                line = br.readLine();
+                Log.d("@@@@@", "@@@@Line"+line);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            Log.e("line",line);
+            return line;
+        }
+    }
+
+    public void addFriend(View view){
+        Intent intent = new Intent(getApplicationContext(), AddFriend.class);
+        startActivityForResult(intent, ADD_FRIED_CODE);
+
+        Toast.makeText(getApplicationContext(), "클릭완성", Toast.LENGTH_LONG).show();
+    }
 }

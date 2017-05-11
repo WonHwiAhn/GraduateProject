@@ -3,7 +3,10 @@
     package="com.example.ahn.finalproject.MainLogin">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -11,6 +14,11 @@
         android:label="나만의 타임캡슐"
         android:theme="@style/AppTheme"
         android:name="com.example.ahn.finalproject.GlobalValues.Main">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBKEqPOQkfxlMHavom53SapjtA2hgHeinw" />
+
         <activity
             android:name=".MainActivity"
             android:label="나만의 타임캡슐"
@@ -34,6 +42,17 @@
             android:name=".SignUpPopup"
             android:theme="@android:style/Theme.Dialog" />
 
+        <activity
+            android:name="com.example.ahn.finalproject.GlobalValues.ExitPopup"
+            android:theme="@android:style/Theme.Dialog" />
+
+        <activity
+            android:name="com.example.ahn.finalproject.CapsuleShow.CapsulePrivate"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+            android:name="com.example.ahn.finalproject.Friend.AddFriend"
+            android:theme="@style/AppTheme.NoActionBar" />
         <!--<activity
             android:name="com.example.ahn.finalproject"
             android:theme="@style/AppTheme.NoActionBar" />-->

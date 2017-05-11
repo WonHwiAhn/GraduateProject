@@ -8,6 +8,11 @@ import android.app.Application;
 
 public class Main extends Application {
     private static String userId;
+    private static String userIdx;
+
+    public static String getUserIdx() { return userIdx; }
+    public static void setUserIdx(String userIdx) { Main.userIdx = userIdx;}
+
     public static String getUserId(){
         return userId;
     }

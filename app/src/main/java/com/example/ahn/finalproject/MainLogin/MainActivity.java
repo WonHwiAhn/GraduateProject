@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -95,12 +96,14 @@ public class MainActivity extends AppCompatActivity {
 
             super.onPostExecute(result);
             HashMap<String, String> mapInfo = new HashMap<>();
+            HashMap<String, String> userIdx = new HashMap<>();
 
             try {
                 JSONArray jsonArray = new JSONArray(result);
                 for(int i=0; i<jsonArray.length();i++){
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     mapInfo.put(jsonObject.getString("id"), jsonObject.getString("password"));
+                    userIdx.put(jsonObject.getString("id"), jsonObject.getString("idx"));
                 }
             } catch (JSONException ex){
                 ex.printStackTrace();
@@ -112,9 +115,11 @@ public class MainActivity extends AppCompatActivity {
                 String key = keySetIterator.next();
                 if(key.equals(id)){
                     if(mapInfo.get(key).equals(pw)){
+                        String idx = userIdx.get(key);
                         flag=true;
                         Intent intent = new Intent(getApplicationContext(), LoginComplete.class);
                         intent.putExtra("id", id);
+                        intent.putExtra("idx", idx);
                         startActivity(intent);
                         finish();
                         break;
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if(!flag){
                 //로그인 실패 했을 때
+                Toast.makeText(getApplicationContext(),"로그인 실패!!!", Toast.LENGTH_LONG).show();
             }
 
 
@@ -167,8 +173,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loginUser(String email, final String password){
-
+        //학교 pc
         new GetDataTask().execute("http://210.123.254.219:3001");
+        //내 pc  http://allanahn.iptime.org:3001
+        //new GetDataTask().execute("http://allanahn.iptime.org:3001");
         //Snackbar snackBar = Snackbar.make(activity_main, "Password length must be over 6", Snackbar.LENGTH_SHORT);
         // snackBar.show();
     }

@@ -3,7 +3,7 @@ package com.example.ahn.finalproject.MainLogin;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
-import android.widget.Toast;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,6 +17,8 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Ahn on 2017-04-10.
@@ -44,10 +46,20 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
     @Override
     public String doInBackground(String... params) {
 
+        /*********학교 pc서버로 접속할 때*********************/
         String reg_url = "http://210.123.254.219:3001" + "/reg";
         String login_url = "http://192.168.1.2/login.php";
         String id_check_url = "http://210.123.254.219:3001" + "/userIdCheck";
         String img_url = "http://210.123.254.219:3001" + "/makePrivateCapsule";
+        String getCapsule = "http://210.123.254.219:3001" + "/getcapsule";
+        String getImg = "http://210.123.254.219:3001" + "/getImg";
+        /*********내 pc서버로 접속할 때*********************/
+        /*String reg_url = "http://allanahn.iptime.org:3001" + "/reg";
+        String login_url = "http://192.168.1.2/login.php";
+        String id_check_url = "http://allanahn.iptime.org:3001" + "/userIdCheck";
+        String img_url = "http://allanahn.iptime.org:3001" + "/makePrivateCapsule";
+        String getCapsule = "http://allanahn.iptime.org:3001" + "/getcapsule";*/
+
 
         String method = params[0];
         if(method.equals("register")){
@@ -203,6 +215,83 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else if(method.equals("getCapsule")){
+            URL url;
+            String response="";
+
+            String userId = params[1];
+
+            try {
+                    url = new URL(getCapsule);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String data = URLEncoder.encode("owner", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                String line = "";
+
+                while((line = bufferedReader.readLine()) != null){
+                    response += line;
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return response;
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else if(method.equals("getImg")){
+            URL url;
+            String response="";
+
+            String picturePath = params[1];
+
+            try {
+                url = new URL(getImg);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String data = URLEncoder.encode("imgPath", "UTF-8") + "=" + URLEncoder.encode(picturePath,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                String line = "";
+
+                while((line = bufferedReader.readLine()) != null){
+                    response += line;
+                }
+                Log.d(TAG,response);
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return response;
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return null;
@@ -210,9 +299,9 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
 
     @Override
     public void onPostExecute(String result) {
-        if(result.equals("Registration Success...")){
+       /* if(result.equals("Registration Success...")){
             Toast.makeText(ctx, result, Toast.LENGTH_LONG).show();
-        }/*else{ //알 수 없는 에러...
+        }*//*else{ //알 수 없는 에러...
             alertDialog.setMessage(result);
             alertDialog.show();
         }*/
