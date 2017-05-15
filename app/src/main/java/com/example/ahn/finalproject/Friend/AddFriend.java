@@ -1,5 +1,6 @@
 package com.example.ahn.finalproject.Friend;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.ahn.finalproject.Adapter.ListViewAdapter;
+import com.example.ahn.finalproject.GlobalValues.Main;
+import com.example.ahn.finalproject.MainLogin.LoginComplete;
 import com.example.ahn.finalproject.MainLogin.R;
 import com.example.ahn.finalproject.VO.ListData;
 
@@ -34,6 +37,7 @@ public class AddFriend extends AppCompatActivity {
     private ListViewAdapter mAdapter;
     public ArrayList<ListData> friends = new ArrayList<>();
     private String friend;
+    private static final int ADD_FRIEND_CODE = 5;
 
     @Override
     protected void onResume() {
@@ -75,8 +79,9 @@ public class AddFriend extends AppCompatActivity {
                     friend = friendName.execute(searchFriend.getText().toString()).get();
                     if(!friend.equals("null")) {
                         String[] eachFriendId = friend.split(",");
-                        for (int j = 0; j < eachFriendId.length; j++) {
-                            friends.add(new ListData(eachFriendId[j], R.drawable.sun));  //리스트에 추가할 데이터
+                        for (int j = 0; j < eachFriendId.length; j+=2) {
+                            eachFriendId[j+1] = eachFriendId[j+1].replace("/usr/local/nodeServer/public", "http://210.123.254.219:3001");
+                            friends.add(new ListData(eachFriendId[j], eachFriendId[j+1]));  //리스트에 추가할 데이터
                         }
                     }else{
                         mAdapter.dataClear();
@@ -138,5 +143,15 @@ public class AddFriend extends AppCompatActivity {
             Log.e("line", line);
             return line;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(getApplication(), LoginComplete.class);
+        intent.putExtra("id", Main.getUserId());
+        intent.putExtra("idx", Main.getUserIdx());
+        intent.putExtra("profile", Main.getProfile());
+        startActivity(intent);
+        finish();
     }
 }

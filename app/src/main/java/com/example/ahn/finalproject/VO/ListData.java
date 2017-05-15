@@ -5,18 +5,17 @@ package com.example.ahn.finalproject.VO;
  */
 
 public class ListData {
-    private String friendId;
-    private int Img;
+    private String friendId, imgPath;
 
-    public ListData(String friendId, int Img){
+    public ListData(String friendId, String imgPath){
         this.friendId = friendId;
-        this.Img = Img;
+        this.imgPath = imgPath;
     }
 
     public String getFriendId(){
         return this.friendId;
     }
-    public int getImg(){
-        return this.Img;
+    public String getImgPath(){
+        return this.imgPath;
     }
 }

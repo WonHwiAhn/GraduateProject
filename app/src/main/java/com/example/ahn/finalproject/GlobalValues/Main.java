@@ -9,14 +9,17 @@ import android.app.Application;
 public class Main extends Application {
     private static String userId;
     private static String userIdx;
+    private static String profile;
 
     public static String getUserIdx() { return userIdx; }
-    public static void setUserIdx(String userIdx) { Main.userIdx = userIdx;}
-
+    public static String getProfile() { return profile;}
     public static String getUserId(){
         return userId;
     }
+
     public void setUserId(String userId){
         this.userId = userId;
     }
+    public  void setUserIdx(String userIdx) { Main.userIdx = userIdx;}
+    public void setProfile(String profile){ Main.profile = profile;}
 }

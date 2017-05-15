@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import com.example.ahn.finalproject.GlobalValues.Main;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -53,6 +55,9 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
         String img_url = "http://210.123.254.219:3001" + "/makePrivateCapsule";
         String getCapsule = "http://210.123.254.219:3001" + "/getcapsule";
         String getImg = "http://210.123.254.219:3001" + "/getImg";
+        String getStatus = "http://210.123.254.219:3001" + "/getStatus";
+        //String addFriend = "http://210.123.254.219:3001" + "/addFriend";
+        String addFriend = "http://210.123.254.219:3001" + "/push";
         /*********내 pc서버로 접속할 때*********************/
         /*String reg_url = "http://allanahn.iptime.org:3001" + "/reg";
         String login_url = "http://192.168.1.2/login.php";
@@ -71,6 +76,7 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
             String email = params[5];
             String profileImg = params[6];
             String profileImgName = params[7];
+            String token = params[8];
             try {
                 URL url = new URL(reg_url);
                 HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
@@ -86,7 +92,8 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
                         URLEncoder.encode("phone", "UTF-8") + "=" + URLEncoder.encode(phone,"UTF-8") + "&" +
                         URLEncoder.encode("email", "UTF-8") + "=" + URLEncoder.encode(email,"UTF-8") + "&" +
                         URLEncoder.encode("profileImg", "UTF-8") + "=" + URLEncoder.encode(profileImg,"UTF-8") + "&" +
-                        URLEncoder.encode("profileImgName", "UTF-8") + "=" + URLEncoder.encode(profileImgName,"UTF-8");
+                        URLEncoder.encode("profileImgName", "UTF-8") + "=" + URLEncoder.encode(profileImgName,"UTF-8")+ "&" +
+                        URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token,"UTF-8");
 
                 bufferedWriter.write(data);
                 bufferedWriter.flush();
@@ -253,14 +260,15 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else if(method.equals("getImg")){
+        }else if(method.equals("getStatus")){
             URL url;
             String response="";
 
-            String picturePath = params[1];
+            String userId = Main.getUserId();
+            String friendId = params[1];
 
             try {
-                url = new URL(getImg);
+                url = new URL(getStatus);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
@@ -268,7 +276,49 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
 
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                String data = URLEncoder.encode("imgPath", "UTF-8") + "=" + URLEncoder.encode(picturePath,"UTF-8");
+                String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8")+"&"+
+                        URLEncoder.encode("friendId", "UTF-8") + "=" + URLEncoder.encode(friendId,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                String line = "";
+
+                while((line = bufferedReader.readLine()) != null){
+                    response += line;
+                }
+                Log.d(TAG,response);
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return response;
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else if(method.equals("addFriend")){
+            URL url;
+            String response="";
+
+            String userId = Main.getUserId();
+            String friendId = params[1];
+
+            try {
+                url = new URL(addFriend);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8")+"&"+
+                        URLEncoder.encode("friendId", "UTF-8") + "=" + URLEncoder.encode(friendId,"UTF-8");
                 bufferedWriter.write(data);
                 bufferedWriter.flush();
                 bufferedWriter.close();

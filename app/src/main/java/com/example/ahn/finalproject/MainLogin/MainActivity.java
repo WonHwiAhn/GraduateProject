@@ -2,6 +2,7 @@ package com.example.ahn.finalproject.MainLogin;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,8 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,17 +34,23 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "@@@";
 
     private static boolean flag = true;
+    private BackPressCloseHandler backPressCloseHandler;
 
     Button btnLogin;
     EditText input_email, input_password;
     TextView btnSignup, btnForgotPass;
 
     RelativeLayout activity_main;
+    String imgPath;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        /*CheckData checkData = new CheckData();
+        checkData.execute();
+        Intent intent = new Intent(this, test.class);
+        startActivity(intent);
+        finish();*/
         //View
         btnLogin = (Button) findViewById(R.id.login_btn_login);
         input_email = (EditText) findViewById(R.id.login_email);
@@ -53,16 +62,19 @@ public class MainActivity extends AppCompatActivity {
         btnSignup.setOnClickListener(listener);
         btnForgotPass.setOnClickListener(listener);
         btnLogin.setOnClickListener(listener);
+
+        backPressCloseHandler = new BackPressCloseHandler(this);
     }
 
     Button.OnClickListener listener = new View.OnClickListener() {
         @Override
-        public void onClick(View view){
-            if(view.getId() == R.id.login_btn_forgot_password){
+        public void onClick(View view) {
+            if (view.getId() == R.id.login_btn_forgot_password) {
                 startActivity(new Intent(MainActivity.this, ForgotPassword.class));
-            }else if(view.getId() == R.id.login_btn_signup){
+            } else if (view.getId() == R.id.login_btn_signup) {
                 startActivity(new Intent(MainActivity.this, SignUp.class));
-            }else if(view.getId() == R.id.login_btn_login){
+                finish();
+            } else if (view.getId() == R.id.login_btn_login) {
                 loginUser(input_email.getText().toString(), input_password.getText().toString());
             }
         }
@@ -73,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         ProgressDialog progressDialog;
 
         @Override
-        protected void onPreExecute(){
+        protected void onPreExecute() {
             super.onPreExecute();
             progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setMessage("Loading Data...");
@@ -84,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             try {
                 return getData(params[0]);
-            }catch (IOException ex){
+            } catch (IOException ex) {
                 return "Network error!";
             }
         }
@@ -100,47 +112,49 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 JSONArray jsonArray = new JSONArray(result);
-                for(int i=0; i<jsonArray.length();i++){
+                for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     mapInfo.put(jsonObject.getString("id"), jsonObject.getString("password"));
                     userIdx.put(jsonObject.getString("id"), jsonObject.getString("idx"));
+                    imgPath = jsonObject.getString("profileImgPath");
                 }
-            } catch (JSONException ex){
+            } catch (JSONException ex) {
                 ex.printStackTrace();
             }
 
             Iterator<String> keySetIterator = mapInfo.keySet().iterator();
 
-            while(keySetIterator.hasNext()) {
+            while (keySetIterator.hasNext()) {
                 String key = keySetIterator.next();
-                if(key.equals(id)){
-                    if(mapInfo.get(key).equals(pw)){
+                if (key.equals(id)) {
+                    if (mapInfo.get(key).equals(pw)) {
                         String idx = userIdx.get(key);
-                        flag=true;
+                        flag = true;
                         Intent intent = new Intent(getApplicationContext(), LoginComplete.class);
                         intent.putExtra("id", id);
                         intent.putExtra("idx", idx);
+                        intent.putExtra("profile", imgPath);
                         startActivity(intent);
                         finish();
                         break;
                     }
-                }else{
-                    flag=false;
+                } else {
+                    flag = false;
                 }
             }
-            if(!flag){
+            if (!flag) {
                 //로그인 실패 했을 때
-                Toast.makeText(getApplicationContext(),"로그인 실패!!!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "로그인 실패!!!", Toast.LENGTH_LONG).show();
             }
 
 
             //cancel progress dialog
-            if(progressDialog != null){
+            if (progressDialog != null) {
                 progressDialog.dismiss();
             }
         }
 
-        private String getData(String urlPath) throws IOException{
+        private String getData(String urlPath) throws IOException {
             StringBuilder result = new StringBuilder();
             BufferedReader bufferedReader = null;
             //Initialize and config request
@@ -157,14 +171,13 @@ public class MainActivity extends AppCompatActivity {
                 InputStream inputStream = urlConnection.getInputStream();
                 bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
-                while((line = bufferedReader.readLine()) != null){
+                while ((line = bufferedReader.readLine()) != null) {
                     result.append(line).append("\n");
                 }
-                Log.d(TAG, "@@@@@@@@@@@"+result);
-            }catch (IOException e){
+            } catch (IOException e) {
                 return "Network error!";
             } finally {
-                if(bufferedReader != null){
+                if (bufferedReader != null) {
                     bufferedReader.close();
                 }
             }
@@ -172,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loginUser(String email, final String password){
+    private void loginUser(String email, final String password) {
         //학교 pc
         new GetDataTask().execute("http://210.123.254.219:3001");
         //내 pc  http://allanahn.iptime.org:3001
@@ -182,11 +195,65 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode==1){
-            if(resultCode==RESULT_OK){
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
                 //데이터 받기
                 String result = data.getStringExtra("result");
             }
         }
+    }
+
+    private class CheckData extends AsyncTask<String, Integer, String> {
+        @Override
+        protected String doInBackground(String... url) {
+            for (int i = 0; i < 30; i++) {
+                String token = FirebaseInstanceId.getInstance().getToken();
+                Log.e("@@@", ""+token);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+            //try{
+
+            //URL ImgUrl = new URL(url[0]);
+            //String imgName = url[1];
+            //String picturePath = url[1];
+
+                /*HttpURLConnection httpURLConnection = (HttpURLConnection) ImgUrl.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String data = URLEncoder.encode("imgPath", "UTF-8") + "=" + URLEncoder.encode(picturePath,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+
+
+                is.close();*/
+            /*}catch(IOException e){
+                e.printStackTrace();
+            }*/
+            //return "";
+
+
+        protected void onPostExecute(Bitmap img) {
+
+        }
+    }
+
+    public void onBackPressed(){
+        backPressCloseHandler.onBackPressed();
     }
 }

@@ -33,6 +33,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -365,19 +367,20 @@ public class SignUp extends AppCompatActivity {
 
     public String userPhoneCheckResult(){
         String phoneNum = userPhone.getText().toString();
-        String frontNum = phoneNum.substring(0,3);
-        Toast.makeText(getApplicationContext(),frontNum,Toast.LENGTH_LONG).show();
-        if(!frontNum.equals("010")){
-            userPhoneCheck.setTextColor(Color.RED);
-            return "올바른 핸드폰 번호를 입력해주세요.";
-        }else if(phoneNum.length() <11) {
-            userPhoneCheck.setTextColor(Color.RED);
-            return "올바른 핸드폰 번호를 입력해주세요.";
+        if(phoneNum.length()>3){
+            String frontNum = phoneNum.substring(0,3);
+            if(!frontNum.equals("010")){
+                userPhoneCheck.setTextColor(Color.RED);
+                return "올바른 핸드폰 번호를 입력해주세요.";
+            }else if(phoneNum.length() <11) {
+                userPhoneCheck.setTextColor(Color.RED);
+                return "올바른 핸드폰 번호를 입력해주세요.";
+            }else{
+                userPhoneCheck.setTextColor(Color.CYAN);
+                return "올바른 핸드폰 번호입니다.";
+            }
         }
-        else{
-            userPhoneCheck.setTextColor(Color.CYAN);
-            return "올바른 핸드폰 번호입니다.";
-        }
+        return "";
     }
 
 
@@ -386,6 +389,9 @@ public class SignUp extends AppCompatActivity {
         /**
          userData정리
          */
+        String name_Str = getImageNameToUri(fileUri);
+        imgName=name_Str;
+        Log.e("fileName : ",name_Str);
 
         encodeImagetoString();
 
@@ -465,9 +471,11 @@ public class SignUp extends AppCompatActivity {
                     //cpa.test(data);
 
                     //Uri에서 이미지 이름을 얻어온다.
-                    String name_Str = getImageNameToUri(data.getData());
+                    fileUri = data.getData();
+                    /*String name_Str = getImageNameToUri(data.getData());
                     imgName=name_Str;
-                    Log.e("fileName : ",name_Str);
+                    Log.e("fileName : ",name_Str);*/
+
                     //이미지 데이터를 비트맵으로 받아온다.
                     image_bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
                     //bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
@@ -494,7 +502,6 @@ public class SignUp extends AppCompatActivity {
     }
 
     public void encodeImagetoString() {
-        Log.d(TAG, "@@@@@@@들어옴1111");
         new AsyncTask<Object, Object, String>() {
 
             public void onPreExecute() {
@@ -503,18 +510,16 @@ public class SignUp extends AppCompatActivity {
 
             @Override
             public String doInBackground(Object... params) {
-                Log.d(TAG, "@@@@@@@들어옴2222");
                 BitmapFactory.Options options = null;
                 options = new BitmapFactory.Options();
                 options.inSampleSize = 3;
                 bitmap = BitmapFactory.decodeFile(imgPath,options);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 // Must compress the Image to reduce image size to make upload easy
-                bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
                 byte[] byte_arr = stream.toByteArray();
                 // Encode Image to String
                 encodedString = new StringBuilder(Base64.encodeToString(byte_arr, 0));
-                Log.e("mainSideImg","");
                 Log.e("mainSideImg",""+encodedString.length());
                 return "";
             }
@@ -525,7 +530,6 @@ public class SignUp extends AppCompatActivity {
                 makeHTTPCall();
             }
         }.execute(null, null, null);
-        Log.d(TAG, "@@@@@@@들어옴3333");
     }
 
     public void makeHTTPCall(){
@@ -537,9 +541,9 @@ public class SignUp extends AppCompatActivity {
         String email = userEmail.getText().toString();
 
         BackgroundTask backgroundTask = new BackgroundTask(this);
-
+        String token = FirebaseInstanceId.getInstance().getToken();
         //backgroundTask.execute("register", id, password, name, birth, phone, email, encodedString.toString(),imgName);
-        backgroundTask.execute("register", id, password, name, phone, email,  encodedString.toString(),imgName);
+        backgroundTask.execute("register", id, password, name, phone, email,  encodedString.toString(),imgName, token);
         //아이디, 패스워드, 이름, 생년월일, 번호, 이메일 background에 보냄
         //나중에 backgroundTask.execute의 리턴 값을 받고 그 값에 따라 popup실행
         Intent intent = new Intent(getApplicationContext(), SignUpPopup.class);
@@ -557,8 +561,9 @@ public class SignUp extends AppCompatActivity {
 
         imgPath = cursor.getString(column_index);
         //imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
-        imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
-        Log.e("ImageName : ",imgName);
+        String extendsName = imgPath.substring(imgPath.lastIndexOf(".")+1);
+        imgName = userId.getText().toString()+"."+extendsName;
+        //Log.e("ImageName : ",imgName);
         return imgName;
     }
 }

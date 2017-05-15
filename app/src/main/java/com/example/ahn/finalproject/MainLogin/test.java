@@ -1,29 +1,18 @@
 package com.example.ahn.finalproject.MainLogin;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 /**
  * Created by Ahn on 2017-04-01.
  */
 
-public class test extends Fragment{
+public class test extends AppCompatActivity{
     private TextView txt;
 
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
-    }
-
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-
-        View view = inflater.inflate(R.layout.capsule_private_main, null);
-        //txt = (TextView) view.findViewById(R.id.txt);
-
-        return super.onCreateView(inflater, container, savedInstanceState);
+        setContentView(R.layout.activity_sign_up);
     }
 }

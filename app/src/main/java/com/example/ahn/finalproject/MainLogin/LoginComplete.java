@@ -19,13 +19,14 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.ahn.finalproject.Adapter.TabPagerAdapter;
 import com.example.ahn.finalproject.Friend.AddFriend;
-import com.example.ahn.finalproject.GlobalValues.ExitPopup;
 import com.example.ahn.finalproject.GlobalValues.Main;
 
 import java.io.BufferedReader;
@@ -38,12 +39,19 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
 public class LoginComplete extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private String[] listItem={};
     private String result;
-    private static final int ADD_FRIED_CODE = 5;
+    private static final int ADD_FRIEND_CODE = 5;
+    private BackPressCloseHandler backPressCloseHandler;
+    ImageView navImgView;
+    TextView navText01, navText02;
+    NavigationView navigationView;
+    View navHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +61,28 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         Intent intent = getIntent();
         String userId = intent.getStringExtra("id");
         String userIdx = intent.getStringExtra("idx");
+        String profile = intent.getStringExtra("profile");
 
         ((Main) getApplication()).setUserId(userId); //userId값을 글로벌 변수에 넣어줌. getApplicationContext이용
         ((Main) getApplication()).setUserIdx(userIdx);
+        ((Main) getApplication()).setProfile(profile);
 
         // Adding Toolbar to the activity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        /***********네비게이션바 설정 부분**************/
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        navHeader = navigationView.getHeaderView(0);
+
+        navImgView = (ImageView) navHeader.findViewById(R.id.navImageView);
+        navText01 = (TextView) navHeader.findViewById(R.id.navText01);
+        navText02 = (TextView) navHeader.findViewById(R.id.navText02);
+
+        navText01.setText(userId + "님 환영해요:)");
 
         /*getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         ActionBar actionBar = getActionBar();
@@ -115,6 +138,8 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         } catch (InterruptedException e) { e.printStackTrace(); }
         catch (ExecutionException e) {e.printStackTrace();}
 
+        Log.e("@@@","result@@@"+result);
+
         if(!result.equals("no")) {
             listItem = result.split(",");
 
@@ -124,14 +149,24 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
                     new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItem)
             );
         }
+        profile = Main.getProfile();
+        Log.e("@@@", "profilePath222@@@"+profile);
+        if(profile!=null)
+            profile = profile.replace("/usr/local/nodeServer/public", "http://210.123.254.219:3001");
+
+        Glide.with(getApplicationContext()).load(profile).centerCrop().bitmapTransform(new CropCircleTransformation(getApplicationContext())).into(navImgView);
+
+        backPressCloseHandler = new BackPressCloseHandler(this);
     } //onCreate end
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Toast.makeText(getApplicationContext(), "232323", Toast.LENGTH_LONG).show();
-        super.onActivityResult(requestCode,resultCode,data);
+        //Toast.makeText(getApplicationContext(), "232323", Toast.LENGTH_LONG).show();
+        /*super.onActivityResult(requestCode,resultCode,data);
         if (resultCode == RESULT_CANCELED) {
             finish();
-        }
+        }else if(resultCode == ADD_FRIEND_CODE){
+            //친구 추가 페이지에서 백스페이스
+        }*/
     }
 
     @Override
@@ -337,10 +372,11 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            //super.onBackPressed();
+            backPressCloseHandler.onBackPressed();
         }
-        Intent intent = new Intent(getApplicationContext(), ExitPopup.class);
-        startActivityForResult(intent, 1);
+        //Intent intent = new Intent(getApplicationContext(), ExitPopup.class);
+        //startActivityForResult(intent, 1);
     }
 
     /**************친구 데이터 받아오는 AsyncTask********************/
@@ -358,8 +394,7 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
 
             BufferedReader bufferedReader = null;
             line = "";
-            String userIdx = Main.getUserIdx();
-            Log.d("@@@@@", "idx@@@"+userIdx);
+            String userId = Main.getUserId();
             try {
                 url = new URL("http://210.123.254.219:3001" + "/getFriend");
                 //conn = (HttpURLConnection) url.openConnection();
@@ -370,7 +405,7 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
                 OutputStream OS = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
 
-                String data = URLEncoder.encode("idx", "UTF-8") + "=" + URLEncoder.encode(userIdx,"UTF-8");
+                String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8");
                 bufferedWriter.write(data);
                 bufferedWriter.flush();
                 bufferedWriter.close();
@@ -390,8 +425,7 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
 
     public void addFriend(View view){
         Intent intent = new Intent(getApplicationContext(), AddFriend.class);
-        startActivityForResult(intent, ADD_FRIED_CODE);
-
-        Toast.makeText(getApplicationContext(), "클릭완성", Toast.LENGTH_LONG).show();
+        startActivityForResult(intent, ADD_FRIEND_CODE);
+        finish();
     }
 }
