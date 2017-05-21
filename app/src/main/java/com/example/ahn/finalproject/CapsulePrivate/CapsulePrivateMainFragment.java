@@ -1,6 +1,7 @@
 package com.example.ahn.finalproject.CapsulePrivate;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -53,6 +54,7 @@ public class CapsulePrivateMainFragment extends Fragment {
     ImageView image; //사진 미리보기 역할해주는 변수
     EditText capsulePrivateLetter;
     String userId;
+    ProgressDialog progressDialog;
     //CapsulePrivateActivity cpa = new CapsulePrivateActivity();
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -186,8 +188,12 @@ public class CapsulePrivateMainFragment extends Fragment {
     public void encodeImagetoString() {
         new AsyncTask<Void, Void, String>() {
 
-            public void onPreExecute() {
-
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progressDialog = new ProgressDialog(getContext());
+                progressDialog.setMessage("Loading Data...");
+                progressDialog.show();
             };
 
             @Override
@@ -203,8 +209,6 @@ public class CapsulePrivateMainFragment extends Fragment {
                 byte[] byte_arr = stream.toByteArray();
                 // Encode Image to String
                 encodedString = new StringBuilder(Base64.encodeToString(byte_arr, 0));
-                Log.e("mainSideImg","");
-                Log.e("mainSideImg",""+encodedString.length());
                 return "";
             }
 
@@ -219,14 +223,17 @@ public class CapsulePrivateMainFragment extends Fragment {
     public void makeHTTPCall() {
         String capsuleContent = capsulePrivateLetter.getText().toString();
         BackgroundTask backgroundTask = new BackgroundTask(getContext());
-        String userId = Main.getUserId();
-        String date = getDate();
-        Log.e("Main","excute start");
+        /** 개인 캡슐 데이터 삽입하는 곳 *********/
+        /*****************************************/
+        String userId = Main.getUserId(); //현재 사용자 아이디
+        String date = getDate(); //캡슐 만든 날짜
+
         try {
-            String result = backgroundTask.execute("makePrivateCapsule",encodedString.toString(),imgName,capsuleContent, userId, date).get();
-            if(result.equals("success")){
-                image.setImageBitmap(null);
-                capsulePrivateLetter.setText("");
+            String result = backgroundTask.execute("makePrivateCapsule",encodedString.toString(),imgName,capsuleContent, userId, date).get(); //개인 캡슐 서버로 넘기는곳
+            if(result.equals("success")){  //캡슐이 성공적으로 보내졌다면
+                progressDialog.dismiss();
+                image.setImageBitmap(null);  //이미지 공백으로
+                capsulePrivateLetter.setText("");  //텍스트뷰 공백으로
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -251,6 +258,7 @@ public class CapsulePrivateMainFragment extends Fragment {
         return imgName;
     }
 
+    //날짜 추출
     public String getDate(){
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
         String date = df.format(new Date());

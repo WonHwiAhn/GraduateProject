@@ -1,7 +1,9 @@
 package com.example.ahn.finalproject.MainLogin;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
     TextView btnSignup, btnForgotPass;
 
     RelativeLayout activity_main;
-    String imgPath;
+    String imgPath, loginId, loginIdx, loginImgPath;
+    SharedPreferences auto;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +67,44 @@ public class MainActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(listener);
 
         backPressCloseHandler = new BackPressCloseHandler(this);
+
+        auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+        loginId = auto.getString("inputId", null);
+        loginIdx = auto.getString("inputIdx", null);
+
+        if (loginId != null) {
+                Intent intent = new Intent(MainActivity.this, LoginComplete.class);
+                loginId = auto.getString("inputId",null);
+                loginIdx = auto.getString("inputIdx",null);
+                loginImgPath = auto.getString("inputProfile", null);
+                intent.putExtra("id", loginId);
+                intent.putExtra("idx", loginIdx);
+                intent.putExtra("profile", loginImgPath);
+                startActivity(intent);
+                finish();
+        }
+        //id와 pwd가 null이면 Mainactivity가 보여짐.
+        /*else if (loginId == null && loginPwd == null) {
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (id.getText().toString().equals("부르곰") && pwd.getText().toString().equals("네이버")) {
+                        SharedPreferences auto = getSharedPreferences("auto", Activity.MODE_PRIVATE);
+                        //아이디가 '부르곰'이고 비밀번호가 '네이버'일 경우 SharedPreferences.Editor를 통해
+                        //auto의 loginId와 loginPwd에 값을 저장해 줍니다.
+                        SharedPreferences.Editor autoLogin = auto.edit();
+                        autoLogin.putString("inputId", id.getText().toString());
+                        autoLogin.putString("inputPwd", pwd.getText().toString());
+                        //꼭 commit()을 해줘야 값이 저장됩니다 ㅎㅎ
+                        autoLogin.commit();
+                        Toast.makeText(MainActivity.this, id.getText().toString() + "님 환영합니다.", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(MainActivity.this, SubActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+            });
+        }*/
     }
 
     Button.OnClickListener listener = new View.OnClickListener() {
@@ -131,6 +172,12 @@ public class MainActivity extends AppCompatActivity {
                         String idx = userIdx.get(key);
                         flag = true;
                         Intent intent = new Intent(getApplicationContext(), LoginComplete.class);
+                        SharedPreferences.Editor autoLogin = auto.edit();
+                        autoLogin.putString("inputId", id);
+                        autoLogin.putString("inputIdx", idx);
+                        autoLogin.putString("inputProfile", imgPath);
+                        //꼭 commit()을 해줘야 값이 저장됩니다 ㅎㅎ
+                        autoLogin.commit();
                         intent.putExtra("id", id);
                         intent.putExtra("idx", idx);
                         intent.putExtra("profile", imgPath);

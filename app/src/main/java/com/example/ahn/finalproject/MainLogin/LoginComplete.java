@@ -161,8 +161,8 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //Toast.makeText(getApplicationContext(), "232323", Toast.LENGTH_LONG).show();
-        /*super.onActivityResult(requestCode,resultCode,data);
-        if (resultCode == RESULT_CANCELED) {
+        super.onActivityResult(requestCode,resultCode,data);
+        /*if (resultCode == RESULT_CANCELED) {
             finish();
         }else if(resultCode == ADD_FRIEND_CODE){
             //친구 추가 페이지에서 백스페이스

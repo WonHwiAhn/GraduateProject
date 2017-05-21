@@ -1,7 +1,7 @@
 package com.example.ahn.finalproject.MainLogin;
 
 /**
- * Created by Kwangmin on 2017-05-02.
+ * Created by Ahn on 2017-05-02.
  */
 import android.util.Log;
 

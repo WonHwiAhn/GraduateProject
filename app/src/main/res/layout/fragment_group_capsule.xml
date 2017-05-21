@@ -1,14 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:weightSum="10">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="1">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pre"
+            android:text="이전페이지"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/post"
+            android:text="다음페이지"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="현재 나의 좌표: "/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/refresh"
+                android:text="좌표갱신"/>
+    </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="This is Tab 2"
-        android:textAppearance="?android:attr/textAppearanceLarge"/>
+   <FrameLayout
+       android:id="@+id/layMain"
+       android:layout_width="match_parent"
+       android:layout_height="0dp"
+       android:background="@drawable/background"
+       android:layout_weight="8">
+   </FrameLayout>
+    <HorizontalScrollView
+        android:id="@+id/hzScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <FrameLayout
+            android:id="@+id/layBtm"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/list"></FrameLayout>
+    </HorizontalScrollView>
 
-</RelativeLayout>
+</LinearLayout>

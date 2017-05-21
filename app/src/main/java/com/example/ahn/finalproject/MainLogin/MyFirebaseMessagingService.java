@@ -1,7 +1,7 @@
 package com.example.ahn.finalproject.MainLogin;
 
 /**
- * Created by Kwangmin on 2017-05-02.
+ * Created by Ahn on 2017-05-02.
  */
 
 import android.app.NotificationManager;
@@ -44,10 +44,13 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
         String token= FirebaseInstanceId.getInstance().getToken();
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("FCM Push Test")
+                .setContentTitle("친구수락요청")
                 .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                          .setBigContentTitle("FCM Push Big Text")
+                          .bigText(messageBody))
                 .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager =
