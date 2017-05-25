@@ -235,16 +235,16 @@ public class CapsuleGroupMainFragment extends Fragment {
                                 clickCheck = false;
                             }
                         });
-                        if(!clickCheck) {
+                        /*if(!clickCheck) {
                             Toast.makeText(getContext(),"여기222",Toast.LENGTH_LONG).show();
                             v.setVisibility(View.VISIBLE);
                             clickCheck=true;
                         }
                         else {
-                            Toast.makeText(getContext(),"여기3333",Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(),"여기3333",Toast.LENGTH_LONG).show();*/
                             v.setVisibility(View.INVISIBLE);
-                            clickCheck=true;
-                        }
+                            /*clickCheck=true;
+                        }*/
                         ViewGroup.MarginLayoutParams margin = new ViewGroup.MarginLayoutParams(
                                 iv.getLayoutParams());
                         margin.setMargins(200 * selectedCnt, 0, 0, 0);

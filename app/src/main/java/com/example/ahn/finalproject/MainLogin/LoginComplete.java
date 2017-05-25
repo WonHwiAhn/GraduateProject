@@ -18,15 +18,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ahn.finalproject.Adapter.TabPagerAdapter;
 import com.example.ahn.finalproject.Friend.AddFriend;
+import com.example.ahn.finalproject.Friend.RequestFriend;
 import com.example.ahn.finalproject.GlobalValues.Main;
 
 import java.io.BufferedReader;
@@ -37,6 +37,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
@@ -47,11 +48,14 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
     private String[] listItem={};
     private String result;
     private static final int ADD_FRIEND_CODE = 5;
+    private static final int REQUEST_FRIEND_CODE = 6;
     private BackPressCloseHandler backPressCloseHandler;
     ImageView navImgView;
-    TextView navText01, navText02;
+    TextView navText01, navText02, friendCount;
     NavigationView navigationView;
     View navHeader;
+    ArrayList<String> fId;
+    ArrayList<String> fStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +75,24 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Friend friend = new Friend();
+        try {
+            result = friend.execute().get();
+            Log.e("@@@","friendStatus@@@" + result);
+            if(!result.equals("noFriends")) {
+                String[] together = result.split("\\*");
+                fId = new ArrayList<>();
+                fStatus = new ArrayList<>();
+                for(int i=0; i<together.length;i++) {
+                    if(together[i].split(",")[1].equals("1")) {
+                        fId.add(together[i].split(",")[0]);
+                        fStatus.add(together[i].split(",")[1]);
+                    }
+                }
+            }
+        } catch (InterruptedException e) { e.printStackTrace(); }
+        catch (ExecutionException e) {e.printStackTrace();}
+
         /***********네비게이션바 설정 부분**************/
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -83,6 +105,12 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         navText02 = (TextView) navHeader.findViewById(R.id.navText02);
 
         navText01.setText(userId + "님 환영해요:)");
+
+        friendCount = (TextView) findViewById(R.id.friendCount);
+        if(!result.equals("noFriends"))
+            friendCount.setText("현재 수락 대기 친구는? " + fStatus.size() + "명 입니다.");
+        else
+            friendCount.setText("현재 수락 대기 친구는? 0명 입니다.");
 
         /*getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         ActionBar actionBar = getActionBar();
@@ -132,15 +160,8 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         /********************************************************
          *          친구 추가 수정 부분
          ******************************************************/
-        Friend friend = new Friend();
-        try {
-           result = friend.execute().get();
-        } catch (InterruptedException e) { e.printStackTrace(); }
-        catch (ExecutionException e) {e.printStackTrace();}
 
-        Log.e("@@@","result@@@"+result);
-
-        if(!result.equals("no")) {
+        /*if(!result.equals("no")) {
             listItem = result.split(",");
 
             //ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listItem);
@@ -148,7 +169,8 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
             listView.setAdapter(
                     new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItem)
             );
-        }
+        }*/
+
         profile = Main.getProfile();
         Log.e("@@@", "profilePath222@@@"+profile);
         if(profile!=null)
@@ -395,6 +417,7 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
             BufferedReader bufferedReader = null;
             line = "";
             String userId = Main.getUserId();
+            Log.e("@@@","friendStatusMYID@@@" + userId);
             try {
                 url = new URL("http://210.123.254.219:3001" + "/getFriend");
                 //conn = (HttpURLConnection) url.openConnection();
@@ -427,5 +450,12 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         Intent intent = new Intent(getApplicationContext(), AddFriend.class);
         startActivityForResult(intent, ADD_FRIEND_CODE);
         finish();
+    }
+
+    public void moveFriend(View view){
+        Intent intent = new Intent(getApplicationContext(), RequestFriend.class);
+        startActivityForResult(intent, REQUEST_FRIEND_CODE);
+        finish();
+        Toast.makeText(getApplicationContext(), "확인", Toast.LENGTH_LONG).show();
     }
 }

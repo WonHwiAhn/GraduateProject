@@ -5,11 +5,16 @@ package com.example.ahn.finalproject.VO;
  */
 
 public class ListData {
-    private String friendId, imgPath;
+    private String friendId, imgPath, status;
 
     public ListData(String friendId, String imgPath){
         this.friendId = friendId;
         this.imgPath = imgPath;
+    }
+
+    public ListData(String friendId, String status, String extra){
+        this.friendId = friendId;
+        this.status = status;
     }
 
     public String getFriendId(){
@@ -17,5 +22,8 @@ public class ListData {
     }
     public String getImgPath(){
         return this.imgPath;
+    }
+    public String getStatus() {
+        return this.status;
     }
 }

@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(result);
             HashMap<String, String> mapInfo = new HashMap<>();
             HashMap<String, String> userIdx = new HashMap<>();
+            HashMap<String, String> mapImg= new HashMap<>();
 
             try {
                 JSONArray jsonArray = new JSONArray(result);
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     mapInfo.put(jsonObject.getString("id"), jsonObject.getString("password"));
                     userIdx.put(jsonObject.getString("id"), jsonObject.getString("idx"));
+                    mapImg.put(jsonObject.getString("id"), jsonObject.getString("profileImgPath"));
                     imgPath = jsonObject.getString("profileImgPath");
                 }
             } catch (JSONException ex) {
@@ -170,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 if (key.equals(id)) {
                     if (mapInfo.get(key).equals(pw)) {
                         String idx = userIdx.get(key);
+                        imgPath = mapImg.get(key);
                         flag = true;
                         Intent intent = new Intent(getApplicationContext(), LoginComplete.class);
                         SharedPreferences.Editor autoLogin = auto.edit();
