@@ -182,7 +182,7 @@ public class RequestFriendListAdapter extends BaseAdapter {
             String userId = Main.getUserId();
 
             try {
-                if(urls.equals("0")){
+                if(urls[0].equals("0")){
                     url = new URL("http://210.123.254.219:3001" + "/AcceptFriend");
                     HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
@@ -201,7 +201,7 @@ public class RequestFriendListAdapter extends BaseAdapter {
                     OS.close();
                     BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
                     line = br.readLine();
-                }else if(urls.equals("1")){
+                }else if(urls[0].equals("1")){
                     url = new URL("http://210.123.254.219:3001" + "/rejectFriend");
                     HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
@@ -213,7 +213,7 @@ public class RequestFriendListAdapter extends BaseAdapter {
                     Log.e("@@@", "fId @@@@@@@@@@@@  " + fId);
 
                     String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8")+ "&" +
-                            URLEncoder.encode("friendId", "UTF-8") + "=" + URLEncoder.encode(fId,"UTF-8");;
+                            URLEncoder.encode("friendId", "UTF-8") + "=" + URLEncoder.encode(fId,"UTF-8");
                     bufferedWriter.write(data);
                     bufferedWriter.flush();
                     bufferedWriter.close();

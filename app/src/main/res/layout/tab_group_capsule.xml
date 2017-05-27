@@ -5,7 +5,7 @@
     android:gravity="center"
     android:id="@+id/tabGroupLinear">
     <ImageView
-        android:src="@drawable/groupcapsule"
+        android:src="@drawable/group_capsule"
         android:id="@+id/tabGroupIcon"
         android:layout_width="30dp"
         android:layout_height="30dp"

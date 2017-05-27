@@ -53,6 +53,7 @@ public class CapsuleGroupMainFragment extends Fragment {
     ArrayList nameArray;
     ArrayList distanceArray;
     ArrayList imgArray;
+    ArrayList selectedPerson;
 
     ArrayList<Integer> alreadyX;
     ArrayList<Integer> alreadyY;
@@ -67,6 +68,8 @@ public class CapsuleGroupMainFragment extends Fragment {
     String line = "";
     HashMap<Integer, Integer> hashMap = new HashMap<>();
     boolean clickCheck=true;
+    UsrInfo userInfo;
+    Button sendmsg;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_group_capsule, container, false);
@@ -79,11 +82,13 @@ public class CapsuleGroupMainFragment extends Fragment {
         Log.e("width", "" + phoneWidth + "height" + phoneHeight);
         Button preBtn = (Button) view.findViewById(R.id.pre);
         Button postBtn = (Button) view.findViewById(R.id.post);
+        sendmsg = (Button) view.findViewById(R.id.sendmsg);
 
         nameArray = new ArrayList();
         distanceArray = new ArrayList();
         imgArray = new ArrayList();
         imgPath = new ArrayList();
+        selectedPerson = new ArrayList();
 
         alreadyX = new ArrayList();
         alreadyY = new ArrayList();
@@ -99,6 +104,9 @@ public class CapsuleGroupMainFragment extends Fragment {
         getLocation();
 
         if(line != "") {
+            /**
+             *  현재 내 주변인들의 정보를 각 ArrayList에 담는 곳
+             */
             eachUser = line.split("\\*");
             for (int i = 0; i < eachUser.length; i++) {
                 nameArray.add(eachUser[i].split(",")[0]);
@@ -143,6 +151,8 @@ public class CapsuleGroupMainFragment extends Fragment {
                                     setNearbyUserImg(currentCnt, linearMain.getHeight());
                                 }
                             });
+                        }else{
+                            Toast.makeText(getContext(),"마지막 페이지입니다.",Toast.LENGTH_LONG).show();
                         }
                     } else { //유저 5명 아닐 때
                         if (currentCnt < eachUser.length / 5) {
@@ -161,6 +171,26 @@ public class CapsuleGroupMainFragment extends Fragment {
 
                 }
             });
+
+            sendmsg.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    InviteUser inviteUser = new InviteUser();
+                    if(selectedPerson.size() != 0) {
+                        try {
+                            Toast.makeText(getContext(), "초대중 " + selectedPerson.toString(), Toast.LENGTH_LONG).show();
+
+                            inviteUser.execute(selectedPerson.toString()).get();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }else{
+                        Toast.makeText(getContext(), "초대된 사람이 없습니다!", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
         }
         return view;
     }
@@ -171,6 +201,7 @@ public class CapsuleGroupMainFragment extends Fragment {
 
         try {
             line = getNearbyUser.execute(Main.getUserId()).get();
+
             Log.e("line####", line);
             getNearbyUser.isCancelled();
         } catch (InterruptedException e) {
@@ -205,32 +236,54 @@ public class CapsuleGroupMainFragment extends Fragment {
 
             iv = new ImageView(getContext());
             if (!hashMap.containsKey(i)) {
-                Log.e("hashhash@@@", "" + hashMap);
-                Log.e("iiiiii@@@", "" + i);
                 imgPath.add(imgArray.get(i).toString().replace("/usr/local/nodeServer/public", "http://210.123.254.219:3001"));
 
 
                 Glide.with(getContext()).load(imgPath.get(i)).centerCrop().bitmapTransform(new CropCircleTransformation(getContext())).into(iv);
                 iv.setImageResource(R.drawable.round);
                 iv.setLayoutParams(new FrameLayout.LayoutParams(200, 200));
-                iv.setTag(i);
+
+                /**
+                 * setTag 설정
+                 */
+                userInfo = new UsrInfo(i, (String) nameArray.get(i));
+
+                iv.setTag(userInfo);
+
+                final UsrInfo getInfo = (UsrInfo) iv.getTag();
+
                 //image btnSetting
                 iv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        UsrInfo getInfo = (UsrInfo) v.getTag();
                         iv = new ImageView(getContext());
-                        int index = (int) v.getTag();
+                        //int index = (int) v.getTag();
+                        int index = getInfo.getIndex();
+                        String usrId = getInfo.getId();
+
                         hashMap.put(index, 1);
                         Glide.with(getContext()).load(imgPath.get(index)).centerCrop().bitmapTransform(new CropCircleTransformation(getContext())).into(iv);
                         iv.setImageResource(R.drawable.round);
                         iv.setLayoutParams(new FrameLayout.LayoutParams(200, 200));
+
                         iv.setTag(v.getTag());
+
+                        Toast.makeText(getContext(), "클릭" + index + " 클릭한 사진의 아이디: " + usrId, Toast.LENGTH_LONG).show();
+
+                        selectedPerson.add(usrId);
+
+                        Toast.makeText(getContext(), "클릭된 사진들" + selectedPerson, Toast.LENGTH_LONG).show();
+
                         iv.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) { //함께하는 친구에서 사람 뻈을 때
+                                UsrInfo getInfo = (UsrInfo) v.getTag();
+
                                 Toast.makeText(getContext(),"여기",Toast.LENGTH_LONG).show();
                                 v.setVisibility(View.INVISIBLE);
-                                hashMap.remove((int) v.getTag());
+                                hashMap.remove(getInfo.getIndex());
+                                selectedPerson.remove(getInfo.getId());
                                 selectedCnt--;
                                 clickCheck = false;
                             }
@@ -278,6 +331,7 @@ public class CapsuleGroupMainFragment extends Fragment {
 
         alreadyX.clear();
         alreadyY.clear();
+
     }
 }
 class GetNearbyUser extends AsyncTask<String, Integer, String> {
@@ -328,5 +382,73 @@ class GetNearbyUser extends AsyncTask<String, Integer, String> {
             ex.printStackTrace();
         }
         return response;
+    }
+}
+
+class InviteUser extends AsyncTask<String, Integer, String> {
+    /*URL url;
+    HttpURLConnection conn;
+    String line;
+    int menuSeq;*/
+    String line;
+    String id = Main.getUserId();
+
+    @Override
+    protected String doInBackground(String... params) {
+        //BufferedReader bufferedReader = null;
+        line = "";
+        String response = "";
+        try {
+            URL url = new URL("http://210.123.254.219:3001"+"/inviteUser");
+            HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setDoOutput(true);
+            OutputStream OS = httpURLConnection.getOutputStream();
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+            String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(id,"UTF-8")+ "&" +
+                    URLEncoder.encode("friends", "UTF-8") + "=" + URLEncoder.encode(params[0],"UTF-8");
+
+            bufferedWriter.write(data);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            OS.close();
+
+            InputStream inputStream = httpURLConnection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+
+            while((line = bufferedReader.readLine()) != null){
+                response += line;
+            }
+            bufferedReader.close();
+            inputStream.close();
+            httpURLConnection.disconnect();
+            Log.e("@@@", "result###@@@"+response);
+            /*url = new URL("http://yys6910.dothome.co.kr/studyA/distanceCheck.php");
+            conn = (HttpURLConnection) url.openConnection();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            line = br.readLine();*/
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return response;
+    }
+}
+
+class UsrInfo{
+    String id;
+    int index;
+    public UsrInfo(int index, String id){
+        this.index = index;
+        this.id = id;
+    }
+    public String getId(){
+        return this.id;
+    }
+    public int getIndex(){
+        return this.index;
     }
 }

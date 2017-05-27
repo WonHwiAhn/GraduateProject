@@ -48,5 +48,11 @@
             android:layout_height="match_parent"
             android:background="@drawable/list"></FrameLayout>
     </HorizontalScrollView>
+    <Button
+        android:id="@+id/sendmsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="초대하기"
+        android:textSize="15dp"/>
 
 </LinearLayout>

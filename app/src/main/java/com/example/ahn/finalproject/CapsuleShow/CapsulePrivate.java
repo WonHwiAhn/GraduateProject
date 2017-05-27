@@ -537,7 +537,7 @@ public class CapsulePrivate extends AppCompatActivity implements
                 outputStream.close();
 
                 InputStream inputStream = httpURLConnection.getInputStream();
-                               BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                               BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 
                 Log.d("@@@", ""+ImgUrl);
                 InputStream is = httpURLConnection.getInputStream();

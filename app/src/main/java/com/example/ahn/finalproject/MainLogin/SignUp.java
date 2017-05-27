@@ -1,10 +1,13 @@
 package com.example.ahn.finalproject.MainLogin;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +19,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ContextThemeWrapper;
 import android.text.Editable;
@@ -46,6 +50,8 @@ import java.util.GregorianCalendar;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.example.ahn.finalproject.MainLogin.R.id.view1;
 
 public class SignUp extends AppCompatActivity {
@@ -82,6 +88,18 @@ public class SignUp extends AppCompatActivity {
 
     /*****************/
 
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    /****/
+    private ArrayList<String> permissionsToRequest;
+    private ArrayList<String> permissionsRejected = new ArrayList<>();
+    private ArrayList<String> permissions = new ArrayList<>();
+
+    private final static int ALL_PERMISSIONS_RESULT = 107;
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +125,34 @@ public class SignUp extends AppCompatActivity {
         userId.setFilters(new InputFilter[]{filterAlphaNum}); //숫자와 영어 소문자 필터 넣어줌.
         userName.setFilters(new InputFilter[]{filterAlphaNum1});
 
+        /**
+         *  폴더 접근 권한 설정 부분
+         */
+        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //마시멜로 이상 버전만 권한 체크
+            if (ContextCompat.checkSelfPermission(SignUp.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) { //권한이 있는지 없는지 체크 (권한 없으면 들어옴)
+                if (ActivityCompat.shouldShowRequestPermissionRationale(SignUp.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    //사용자에게 권한 획득에 대한 설명을 보여준 후 권한 요청을 수행
+                    //권한을 한번이라도 거부한 적 있는지 검사
+                    //있다면 true, 없다면 false
+                    Toast.makeText(getApplicationContext(), "현재 권한 있음", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "현재 권한 없음", Toast.LENGTH_LONG).show();
+                    ActivityCompat.requestPermissions(SignUp.this, PERMISSIONS_STORAGE, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+                }
+            }
+        }*/
+        permissions.add(WRITE_EXTERNAL_STORAGE);
+        permissions.add(CAMERA);
+        permissionsToRequest = findUnAskedPermissions(permissions);
+        //get the permissions we have asked for before but are not granted..
+        //we will store this in a global list to access later.
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (permissionsToRequest.size() > 0)
+                requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]), ALL_PERMISSIONS_RESULT);
+        }
         /***************************************************************
          *         TextChangedListener이벤트 처리 부분                  *
          ***************************************************************/
@@ -565,6 +611,91 @@ public class SignUp extends AppCompatActivity {
         imgName = userId.getText().toString()+"."+extendsName;
         //Log.e("ImageName : ",imgName);
         return imgName;
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+        switch (requestCode) {
+
+            case ALL_PERMISSIONS_RESULT:
+                for (String perms : permissionsToRequest) {
+                    if (hasPermission(perms)) {
+
+                    } else {
+
+                        permissionsRejected.add(perms);
+                    }
+                }
+
+                if (permissionsRejected.size() > 0) {
+
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (shouldShowRequestPermissionRationale(permissionsRejected.get(0))) {
+                            showMessageOKCancel("These permissions are mandatory for the application. Please allow access.",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+                                                //Log.d("API123", "permisionrejected " + permissionsRejected.size());
+
+                                                requestPermissions(permissionsRejected.toArray(new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
+                                            }
+                                        }
+                                    });
+                            return;
+                        }
+                    }
+
+                }
+
+                break;
+        }
+        /*switch (requestCode){
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS:{
+                //권한 획득이 거부되면 결과 배열은 비어있게 됨
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+                }else{
+                    Toast.makeText(getApplicationContext(), "현재 권한이 없습니다.", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }*/
+    }
+
+    private ArrayList<String> findUnAskedPermissions(ArrayList<String> wanted) {
+        ArrayList<String> result = new ArrayList<String>();
+
+        for (String perm : wanted) {
+            if (!hasPermission(perm)) {
+                result.add(perm);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean hasPermission(String permission) {
+        if (canMakeSmores()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
+            }
+        }
+        return true;
+    }
+
+    private boolean canMakeSmores() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 }
 

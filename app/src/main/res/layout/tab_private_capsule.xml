@@ -6,7 +6,7 @@
     android:gravity="center">
 
     <ImageView
-        android:src="@drawable/privatecapsule"
+        android:src="@drawable/private_capsule"
         android:id="@+id/tabPrivateIcon"
         android:layout_width="30dp"
         android:layout_height="30dp"

@@ -31,10 +31,10 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
         String msg = data.get("data2");
 
         //추가한것
-        sendNotification(remoteMessage.getData().get("data1"));
+        sendNotification(remoteMessage.getData().get("category"), title);
     }
 
-    private void sendNotification(String messageBody) {
+    private void sendNotification(String messageBody, String content) {
         Intent intent = new Intent(this, com.example.ahn.finalproject.MainLogin.MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
@@ -42,24 +42,46 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         String token= FirebaseInstanceId.getInstance().getToken();
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("친구수락요청")
-                .setContentText(messageBody)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setStyle(new NotificationCompat.BigTextStyle()
-                          .setBigContentTitle("FCM Push Big Text")
-                          .bigText(messageBody))
-                .setContentIntent(pendingIntent);
+        if(messageBody.equals("1")) {
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("친구수락요청")
+                    .setContentText(content)
+                    .setAutoCancel(true)
+                    .setSound(defaultSoundUri)
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .setBigContentTitle(content)
+                            .bigText(content))
+                    .setContentIntent(pendingIntent);
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakelock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
-        wakelock.acquire(5000);
+            PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+            PowerManager.WakeLock wakelock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+            wakelock.acquire(5000);
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+            notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        }else if(messageBody.equals("2")){
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("단체캡슐 만들자!!")
+                    .setContentText(content)
+                    .setAutoCancel(true)
+                    .setSound(defaultSoundUri)
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .setBigContentTitle(content)
+                            .bigText(content))
+                    .setContentIntent(pendingIntent);
+
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+            PowerManager.WakeLock wakelock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+            wakelock.acquire(5000);
+
+            notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        }
     }
 }

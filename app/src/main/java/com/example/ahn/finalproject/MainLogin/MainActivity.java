@@ -113,7 +113,37 @@ public class MainActivity extends AppCompatActivity {
             if (view.getId() == R.id.login_btn_forgot_password) {
                 startActivity(new Intent(MainActivity.this, ForgotPassword.class));
             } else if (view.getId() == R.id.login_btn_signup) {
+                /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    int permissionResult = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    if(permissionResult == PackageManager.PERMISSION_DENIED){//권한 없을경우
+                        if(shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                            //권한 검사 (1번이라도 거절한 적이 있는지 체크) 있다면 true, 없다면 false
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                            dialog.setTitle("권한 필요")
+                                    .setMessage("기능을 사용하기 위해 단말기의 '폴더접근' 권한이 필요합니다.")
+                                    .setPositiveButton("네", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                                                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+                                            }
+                                        }
+                                    }) //end PositiveButton
+                            .setNegativeButton("아니요", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Toast.makeText(MainActivity.this, "권한 취소", Toast.LENGTH_LONG).show();
+                                }
+                            }).create().show(); //end NegativeButton
+                        } *//*end shouldShowRequestPermission*//* else{
+                            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+                        } // end else
+                    } *//* end PackageManager.Permission*//* else{
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.p)
+                    } // end else
+                }*/
                 startActivity(new Intent(MainActivity.this, SignUp.class));
+
                 finish();
             } else if (view.getId() == R.id.login_btn_login) {
                 loginUser(input_email.getText().toString(), input_password.getText().toString());

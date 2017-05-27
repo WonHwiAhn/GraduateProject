@@ -75,6 +75,22 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        CheckInviteStatus checkInviteStatus = new CheckInviteStatus();
+        try {
+            String inviteStatus = checkInviteStatus.execute().get();
+            Toast.makeText(getApplicationContext(), ""+inviteStatus, Toast.LENGTH_LONG).show();
+            /**
+             * inviteStatus = 0 아무것도 아닌 상태 혹은 거절 상태
+             * inviteStatus = 1 수락 요청 온 상태
+             * inviteStatus = 2 수락 요청을 수락한 상태 (대기)
+             * inviteStatus = 3 단체 타임 캡슐로 이동한 상태
+             */
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
         Friend friend = new Friend();
         try {
             result = friend.execute().get();
@@ -171,8 +187,7 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
             );
         }*/
 
-        profile = Main.getProfile();
-        Log.e("@@@", "profilePath222@@@"+profile);
+        profile = Main.getProfile(); //유저 프로필 사진 경로
         if(profile!=null)
             profile = profile.replace("/usr/local/nodeServer/public", "http://210.123.254.219:3001");
 
@@ -437,6 +452,47 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
                 BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
                 line = br.readLine();
                 Log.d("@@@@@", "@@@@Line"+line);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            Log.e("line",line);
+            return line;
+        }
+    }
+
+    class CheckInviteStatus extends AsyncTask<String, Integer, String> {
+        URL url;
+        //HttpURLConnection conn;
+        String line;
+        int menuSeq;
+
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            BufferedReader bufferedReader = null;
+            line = "";
+            String userId = Main.getUserId();
+            try {
+                url = new URL("http://210.123.254.219:3001" + "/getInvite");
+                //conn = (HttpURLConnection) url.openConnection();
+
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+                String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
+                line = br.readLine();
+                Log.d("@@@@@", "CheckInviteStatusLine@@@@"+line);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
