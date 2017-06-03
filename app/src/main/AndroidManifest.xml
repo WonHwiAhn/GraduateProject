@@ -62,6 +62,10 @@
         <activity
             android:name="com.example.ahn.finalproject.Friend.RequestFriend"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name="com.example.ahn.finalproject.CapsuleGroup.CapsuleGroupMake"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <!--<activity
             android:name="com.example.ahn.finalproject"
             android:theme="@style/AppTheme.NoActionBar" />-->

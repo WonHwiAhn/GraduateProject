@@ -4,6 +4,7 @@ package com.example.ahn.finalproject.MainLogin;
  * Created by Ahn on 2017-03-24.
  */
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,9 +14,11 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,6 +28,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ahn.finalproject.Adapter.TabPagerAdapter;
+import com.example.ahn.finalproject.CapsuleGroup.CapsuleGroupMake;
 import com.example.ahn.finalproject.Friend.AddFriend;
 import com.example.ahn.finalproject.Friend.RequestFriend;
 import com.example.ahn.finalproject.GlobalValues.Main;
@@ -85,6 +89,41 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
              * inviteStatus = 2 수락 요청을 수락한 상태 (대기)
              * inviteStatus = 3 단체 타임 캡슐로 이동한 상태
              */
+            if(inviteStatus.equals("1")){
+                LayoutInflater inflater = getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.dialog_waiting_request, null);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Member Information");
+                builder.setIcon(android.R.drawable.ic_dialog_alert);
+                builder.setView(dialogView);
+                builder.setPositiveButton("수락", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent getCapsuleIdx = getIntent();
+
+                        UpdateInviteStatus updateInviteStatus = new UpdateInviteStatus();
+                        updateInviteStatus.execute("2");
+
+                        Intent intent = new Intent(LoginComplete.this, CapsuleGroupMake.class);
+                        intent.putExtra("groupIdx", getCapsuleIdx.getExtras().getString("groupIdx"));
+                        startActivityForResult(intent, 200);
+                    }
+                });
+                builder.setNegativeButton("거절", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        UpdateInviteStatus updateInviteStatus = new UpdateInviteStatus();
+                        updateInviteStatus.execute("0");
+
+                        Toast.makeText(getApplicationContext(), "초대를 거절하셨습니다.", Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.show();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -485,6 +524,98 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
 
                 String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
+                line = br.readLine();
+                Log.d("@@@@@", "CheckInviteStatusLine@@@@"+line);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            Log.e("line",line);
+            return line;
+        }
+    }
+
+    /****************************************************************
+     * 초대상태 업데이트 (거절 누른 상태)
+     ****************************************************************/
+
+    class UpdateInviteStatus extends AsyncTask<String, Integer, String> {
+        URL url;
+        //HttpURLConnection conn;
+        String line;
+        int menuSeq;
+
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            BufferedReader bufferedReader = null;
+            line = "";
+            String userId = Main.getUserId();
+            try {
+                url = new URL("http://210.123.254.219:3001" + "/updateInvite");
+                //conn = (HttpURLConnection) url.openConnection();
+
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+                String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8")+ "&" +
+                        URLEncoder.encode("inviteStatus", "UTF-8") + "=" + URLEncoder.encode(urls[0],"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
+                line = br.readLine();
+                Log.d("@@@@@", "CheckInviteStatusLine@@@@"+line);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            Log.e("line",line);
+            return line;
+        }
+    }
+
+    /****************************************************************
+     * 초대상태 업데이트 (수락 누른 상태), 단체 캡슐 테이블에 데이터 삽입
+     ****************************************************************/
+
+    class MakeGroupCapsule extends AsyncTask<String, Integer, String> {
+        URL url;
+        //HttpURLConnection conn;
+        String line;
+        int menuSeq;
+
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            BufferedReader bufferedReader = null;
+            line = "";
+            String userId = Main.getUserId();
+            try {
+                url = new URL("http://210.123.254.219:3001" + "/updateInvite");
+                //conn = (HttpURLConnection) url.openConnection();
+
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+                String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8")+ "&" +
+                        URLEncoder.encode("inviteStatus", "UTF-8") + "=" + URLEncoder.encode(urls[0],"UTF-8");
                 bufferedWriter.write(data);
                 bufferedWriter.flush();
                 bufferedWriter.close();

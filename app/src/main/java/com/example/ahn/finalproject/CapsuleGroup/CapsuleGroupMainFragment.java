@@ -1,5 +1,6 @@
 package com.example.ahn.finalproject.CapsuleGroup;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -172,6 +173,10 @@ public class CapsuleGroupMainFragment extends Fragment {
                 }
             });
 
+            /**********************************************************
+             * 초대하기 버튼 눌렀을 때
+             *********************************************************/
+
             sendmsg.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view) {
@@ -181,6 +186,13 @@ public class CapsuleGroupMainFragment extends Fragment {
                             Toast.makeText(getContext(), "초대중 " + selectedPerson.toString(), Toast.LENGTH_LONG).show();
 
                             inviteUser.execute(selectedPerson.toString()).get();
+
+                            UpdateInviteStatus updateInviteStatus = new UpdateInviteStatus();
+                            updateInviteStatus.execute("2");
+
+                            Intent intent = new Intent(getContext(), CapsuleGroupMake.class);
+                            intent.putExtra("owner", Main.getUserId());
+                            startActivityForResult(intent, 200);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } catch (ExecutionException e) {
@@ -435,6 +447,52 @@ class InviteUser extends AsyncTask<String, Integer, String> {
             ex.printStackTrace();
         }
         return response;
+    }
+}
+
+/****************************************************************
+ * 초대상태 업데이트 (거절 누른 상태)
+ ****************************************************************/
+
+class UpdateInviteStatus extends AsyncTask<String, Integer, String> {
+    URL url;
+    //HttpURLConnection conn;
+    String line;
+    int menuSeq;
+
+
+    @Override
+    protected String doInBackground(String... urls) {
+
+        BufferedReader bufferedReader = null;
+        line = "";
+        String userId = Main.getUserId();
+        try {
+            url = new URL("http://210.123.254.219:3001" + "/updateInvite");
+            //conn = (HttpURLConnection) url.openConnection();
+
+            HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setDoOutput(true);
+            OutputStream OS = httpURLConnection.getOutputStream();
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+            String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8")+ "&" +
+                    URLEncoder.encode("inviteStatus", "UTF-8") + "=" + URLEncoder.encode(urls[0],"UTF-8");
+            bufferedWriter.write(data);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            OS.close();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
+            line = br.readLine();
+            Log.d("@@@@@", "CheckInviteStatusLine@@@@"+line);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        Log.e("line",line);
+        return line;
     }
 }
 

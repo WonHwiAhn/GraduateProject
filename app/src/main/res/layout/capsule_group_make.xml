@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -12,42 +11,36 @@
         android:weightSum="1">
         <EditText
             android:background="@null"
-            android:id="@+id/capsulePrivateLetter"
+            android:id="@+id/capsuleGroupTitle"
+            android:gravity="center"
+            android:hint="타임캡슐의 제목을 입력해주세요."
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+        <EditText
+            android:background="@null"
+            android:id="@+id/capsuleGroupLetter"
             android:gravity="center"
             android:hint="타임캡슐에 저장할 글을 입력해주세요."
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="200dp"
             android:layout_weight="0.99" />
-        <LinearLayout
-            android:orientation="horizontal"
+
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:id="@+id/privateImgView"/>
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/img_profile"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/profile"
-                app:civ_border_width="5dp"
-                app:civ_border_color="#FFFFFF"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true" />
-        </LinearLayout>
+            android:layout_height="100dp"
+            android:id="@+id/groupImgView"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button
-                android:id="@+id/privateGallery"
+                android:id="@+id/groupGallery"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@drawable/gallery"/>
             <Button
-                android:id="@+id/privateCamera"
+                android:id="@+id/groupCamera"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@drawable/camera"/>
@@ -57,7 +50,7 @@
                 android:background="@drawable/calendar"/>
 
             <Button
-                android:id="@+id/privateMake"
+                android:id="@+id/groupMake"
                 android:layout_marginLeft="200dp"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
