@@ -5,4 +5,10 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <string-array name="스피너목록">
+        <item>개인캡슐</item>
+        <item>단체캡슐</item>
+        <item>종합</item>
+    </string-array>
 </resources>

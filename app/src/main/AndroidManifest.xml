@@ -56,6 +56,10 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
+            android:name="com.example.ahn.finalproject.CapsuleShow.CapsuleGroup"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
             android:name="com.example.ahn.finalproject.Friend.AddFriend"
             android:theme="@style/AppTheme.NoActionBar" />
 
