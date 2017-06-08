@@ -55,7 +55,7 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
 
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.adduser)
                     .setContentTitle("친구요청이 왔습니다!")
                     .setContentText(content)
                     .setAutoCancel(true)
@@ -75,7 +75,7 @@ public class MyFirebaseMessagingService extends com.google.firebase.messaging.Fi
             notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
         }else if(messageBody.equals("2")){
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.drawable.make_capsule)
                     .setContentTitle("단체캡슐 만들자!!")
                     .setContentText(content)
                     .setAutoCancel(true)

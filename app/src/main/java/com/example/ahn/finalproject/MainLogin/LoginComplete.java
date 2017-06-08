@@ -215,16 +215,24 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         /********************************************************
          *          친구 추가 수정 부분
          ******************************************************/
+        /*FriendList friendList = new FriendList();
+        try {
+            String result = friendList.execute().get();
+            if(!result.equals("no")) {
+                listItem = result.split(",");
 
-        /*if(!result.equals("no")) {
-            listItem = result.split(",");
-
-            //ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listItem);
-            ListView listView = (ListView) findViewById(R.id.navListView);
-            listView.setAdapter(
-                    new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItem)
-            );
+                //ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listItem);
+                ListView listView = (ListView) findViewById(R.id.navListView);
+                listView.setAdapter(
+                        new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItem)
+                );
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }*/
+
 
         profile = Main.getProfile(); //유저 프로필 사진 경로
         if(profile!=null)
@@ -633,10 +641,59 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         }
     }
 
+    /****************************************************************
+     * 친구리스트 받아오는 곳
+     ****************************************************************/
+
+    class FriendList extends AsyncTask<String, Integer, String> {
+        URL url;
+        //HttpURLConnection conn;
+        String line;
+        int menuSeq;
+
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            BufferedReader bufferedReader = null;
+            line = "";
+            String userId = Main.getUserId();
+            try {
+                url = new URL("http://210.123.254.219:3001" + "/getFriendList");
+                //conn = (HttpURLConnection) url.openConnection();
+
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+                String data = URLEncoder.encode("myId", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
+                line = br.readLine();
+                Log.d("@@@@@", "CheckInviteStatusLine@@@@"+line);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            Log.e("line",line);
+            return line;
+        }
+    }
+
     public void addFriend(View view){
-        Intent intent = new Intent(getApplicationContext(), AddFriend.class);
-        startActivityForResult(intent, ADD_FRIEND_CODE);
-        finish();
+        if(fStatus.size() == 0)
+            Toast.makeText(getApplicationContext(), "확인할 요청이 없습니다.", Toast.LENGTH_LONG).show();
+        else {
+            Intent intent = new Intent(getApplicationContext(), AddFriend.class);
+            startActivityForResult(intent, ADD_FRIEND_CODE);
+            finish();
+        }
     }
 
     public void moveFriend(View view){

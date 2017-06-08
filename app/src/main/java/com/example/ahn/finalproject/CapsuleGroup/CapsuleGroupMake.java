@@ -64,6 +64,7 @@ import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage;
 
@@ -146,6 +147,7 @@ public class CapsuleGroupMake extends AppCompatActivity{
         //checkOwner.execute().get;
 
         permissions.add(WRITE_EXTERNAL_STORAGE);
+        permissions.add(CAMERA);
         permissionsToRequest = findUnAskedPermissions(permissions);
         //get the permissions we have asked for before but are not granted..
         //we will store this in a global list to access later.
@@ -249,14 +251,18 @@ public class CapsuleGroupMake extends AppCompatActivity{
 
                 ///if문 없애도 됨 나중에 작업 ㄱㄱ
                     if(owner.equals(Main.getUserId())) {
-                        if (imgPath != null && !imgPath.isEmpty()) {
+                        if (imgPath != null && !imgPath.isEmpty() && !capsuleGroupTitle.getText().toString().equals("")) {
                             Log.e("Converting Image to ","Binary Data");
                             // Convert image to String using Base64
                             encodeImagetoString();
                             // When Image is not selected from Gallery
+                        } else if(capsuleGroupTitle.getText().toString().equals("")){
+                            Toast.makeText(getApplicationContext(),
+                                    "제목을 입력하셔야됩니다!",
+                                    Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(getApplicationContext(),
-                                    "You must select image from gallery before you try to upload",
+                                    "1장의 사진을 올리셔야됩니다!",
                                     Toast.LENGTH_LONG).show();
                         }
                         result="success";
@@ -269,7 +275,7 @@ public class CapsuleGroupMake extends AppCompatActivity{
                                 // When Image is not selected from Gallery
                             } else {
                                 Toast.makeText(getApplicationContext(),
-                                        "You must select image from gallery before you try to upload",
+                                        "1장의 사진을 올리셔야됩니다!",
                                         Toast.LENGTH_LONG).show();
                             }
                             result="success";

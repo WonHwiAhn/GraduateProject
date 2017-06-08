@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -16,12 +17,19 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.ahn.finalproject.MainLogin.R;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Ahn on 2017-06-05.
@@ -33,6 +41,7 @@ public class CapsuleGroup extends AppCompatActivity{
     LinearLayout linearGroup;
     String content, picturepath;
     Bitmap bmImg;
+    Bitmap decodedByte;
     ImageView imageContent;
     String picture;
 
@@ -40,7 +49,7 @@ public class CapsuleGroup extends AppCompatActivity{
     LinearLayout rl1;
     TextView pictureUser;
 
-    FrameLayout frameLayout1;
+    //FrameLayout frameLayout1;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +69,7 @@ public class CapsuleGroup extends AppCompatActivity{
         linearGroup = (LinearLayout) findViewById(R.id.linearGroup);
         capsuleTitle = (TextView) findViewById(R.id.capsuleTitle);
 
-        frameLayout1 = new FrameLayout(getApplicationContext());
+        //frameLayout1 = new FrameLayout(getApplicationContext());
 
         capsuleTitle.setText(title);
 
@@ -176,15 +185,22 @@ public class CapsuleGroup extends AppCompatActivity{
             pictureUser.setTextColor(Color.BLACK);
             //Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL
             pictureUser.setGravity(Gravity.CENTER_HORIZONTAL);
-            pictureUser.setText(picturepathArray[i+1]);
+            pictureUser.setText("사진 올린 사람 : " + picturepathArray[i+1]);
+            pictureUser.setTextSize(20);
 
             //차이드 생성 (내용)
             imageContent = new ImageView(getApplicationContext());
-            RelativeLayout.LayoutParams textContentParams = new RelativeLayout.LayoutParams
-                    (rl1.getLayoutParams().width, ViewGroup.LayoutParams.WRAP_CONTENT);
+            /*RelativeLayout.LayoutParams textContentParams = new RelativeLayout.LayoutParams
+                    (rl1.getLayoutParams().width, ViewGroup.LayoutParams.WRAP_CONTENT);*/
+
+            FrameLayout.LayoutParams frameLayout = new FrameLayout.LayoutParams(1000, 600);
+            frameLayout.setMargins(linearGroup.getWidth()-linearGroup.getWidth()/2-500, 80, 0,0);
+            imageContent.setLayoutParams(frameLayout);
             //textContentParams.addRule(RelativeLayout.BELOW, i);
-            imageContent.setLayoutParams(textContentParams);
+            //imageContent.setLayoutParams(textContentParams);
             imageContent.setId(i+1);
+            imageContent.setScaleType(ImageView.ScaleType.CENTER);
+
             //text.setWidth(rl.getLayoutParams().width);
             //Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL
             picturepathArray[i] = picturepathArray[i].replace("/usr/local/nodeServer/public", "http://210.123.254.219:3001");
@@ -193,6 +209,10 @@ public class CapsuleGroup extends AppCompatActivity{
 
 
             picture = picturepathArray[i];
+            Glide.with(getApplicationContext()).load(picture).into(imageContent);
+            /*byte [] encodeByte= Base64.decode(picture,Base64.DEFAULT);
+            Bitmap bitmap=BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            imageContent.setImageBitmap(bitmap);*/
            /* new Thread(){
                 public void run(){
                    Bitmap bitmap = getBitmapFromURL(picture);
@@ -200,6 +220,14 @@ public class CapsuleGroup extends AppCompatActivity{
                     bundle.putString("test", bitmap);
                 }
             }.start();*/
+            /*rl1.post(new Runnable() {
+                @Override
+                public void run() {
+                    Bitmap bitmap = getBitmapFromURL(picture);
+                    imageContent.setImageBitmap(bitmap);
+                }
+            });*/
+
 
             //t.start();
 
@@ -211,19 +239,43 @@ public class CapsuleGroup extends AppCompatActivity{
                 }
             });*/
 
-            GetPicture getPicture = new GetPicture();
+            /*GetImg getImg = new GetImg();
+            Bitmap test;
+
+                getImg.execute(picture);*/
+            /*rl1.post(new Runnable() {
+                @Override
+                public void run() {
+                    rl1.removeAllViews();
+                    uploadImg();
+                }
+            });*/
+                //imageContent.setImageBitmap(test);
+
+
+
+            /*GetPicture getPicture = new GetPicture();
             getPicture.setDaemon(true);
-            getPicture.start();
+            getPicture.start();*/
+
 
             Log.e("@@@", "textContent@@@" + contentArray[i+1] + "    imagepicture @@@@" + picturepathArray[i]);
 
 
+            //imageContent.setImageBitmap(Glide.with(getApplicationContext()).load(picture));
 
-            //FrameLayout frameLayout1 = new FrameLayout(getApplicationContext());
+            FrameLayout frameLayout1 = new FrameLayout(getApplicationContext());
             //frameLayout.addView(iv);
 
             /*frameLayout1.addView(rl1);
             linearGroup.addView(frameLayout1);*/
+
+            rl1.addView(pictureUser);
+            //rl1.addView(imageContent);
+
+            frameLayout1.addView(rl1);
+            frameLayout1.addView(imageContent);
+            linearGroup.addView(frameLayout1);
         }
     }
 
@@ -249,45 +301,82 @@ public class CapsuleGroup extends AppCompatActivity{
         finally{ if(connection!=null)connection.disconnect(); }
     }
 
-    /*private class GetImg extends AsyncTask<String, Integer, Bitmap> {
+    private class GetImg extends AsyncTask<String, Integer, Bitmap> {
+        String response="";
         @Override
         protected Bitmap doInBackground(String... url) {
             try{
 
-                URL ImgUrl = new URL(url[0]);
+                URL ImgUrl = new URL("http://210.123.254.219:3001" + "/getImgs");
                 //String imgName = url[1];
-                String picturePath = url[1];
+                String picturePath = url[0];
 
                 HttpURLConnection httpURLConnection = (HttpURLConnection) ImgUrl.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setDoInput(true);
 
-                *//*OutputStream outputStream = httpURLConnection.getOutputStream();
+                OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
                 String data = URLEncoder.encode("imgPath", "UTF-8") + "=" + URLEncoder.encode(picturePath,"UTF-8");
                 bufferedWriter.write(data);
                 bufferedWriter.flush();
                 bufferedWriter.close();
-                outputStream.close();*//*
+                outputStream.close();
 
+                /*final BitmapFactory.Options options = new BitmapFactory.Options();
                 InputStream inputStream = httpURLConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 
-                Log.d("@@@", ""+ImgUrl);
-                InputStream is = httpURLConnection.getInputStream();
+                BufferedInputStream bufferedReader = new BufferedInputStream(inputStream);
+
+                bmImg = BitmapFactory.decodeStream(bufferedReader, null, options);
+                bufferedReader.reset();
+
+                options.inJustDecodeBounds = false;
+                bmImg = BitmapFactory.decodeStream(bufferedReader, null, options);*/
+                /*InputStream is = httpURLConnection.getInputStream();
+                boolean test = is.markSupported();
+                if(test){
+                    is.reset();
+                }*/
+
+                /*Log.d("@@@", "isisisis   "+is);
+
                 bmImg = BitmapFactory.decodeStream(is);
+*/
+                /*InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                String line;
 
-                is.close();
+                InputStream is = httpURLConnection.getInputStream();
+
+                bmImg = BitmapFactory.decodeStream(is);*/
+               /* while((line = bufferedReader.readLine()) != null){
+                        response += line;
+                }*/
+
+
+
+                Log.d(TAG,"여기" + response);
+                /*byte[] decodedString = Base64.decode(response, Base64.DEFAULT);
+                decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);*/
+                //bmImg = BitmapFactory.decodeStream(response);
+                //bufferedReader.close();
+                //inputStream.close();
+                //is.close();
+                httpURLConnection.disconnect();
+
+
+                //is.close();
             }catch(IOException e){
                 e.printStackTrace();
             }
             return bmImg;
         }
         protected void onPostExecute(Bitmap img){
-            capsulePrivateImg.setImageBitmap(bmImg);
+            imageContent.setImageBitmap(bmImg);
         }
-    }*/
+    }
     class GetPicture extends Thread{
             public void run() {
                 try{
@@ -298,18 +387,20 @@ public class CapsuleGroup extends AppCompatActivity{
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            rl1.removeAllViews();
+                            uploadImg();
                             /*imageContent.setImageBitmap(bmImg);
                             rl1.addView(pictureUser);
                             rl1.addView(imageContent);
                             frameLayout1.addView(rl1);
                             linearGroup.addView(frameLayout1);*/
-                            rl1.post(new Runnable() {
+                            /*rl1.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     rl1.removeAllViews();
                                     uploadImg();
                                 }
-                            });
+                            });*/
                         }
                     });
                 } catch(Exception e){}
@@ -323,7 +414,6 @@ public class CapsuleGroup extends AppCompatActivity{
         imageContent.setImageBitmap(bmImg);
         rl1.addView(pictureUser);
         rl1.addView(imageContent);
-        frameLayout1.addView(rl1);
-        linearGroup.addView(frameLayout1);
+
     }
 }

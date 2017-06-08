@@ -270,7 +270,7 @@ public class CapsuleShowMainFragment extends Fragment {
 
                 // RelativeLayout width, height 설정
 
-                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(400,600);
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(400,800);
 
                 // RelativeLayout에 width, height 설정 적용
                 rl.setLayoutParams(params);
