@@ -181,11 +181,11 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
                 e.printStackTrace();
             }
         }else if(method.equals("makePrivateCapsule")){
-            String img = params[1];
-            String imgName = params[2];
-            String capsuleContent = params[3];
-            String userId = params[4];
-            String makeDate = params[5];
+            //String img = params[1];
+            String imgName = params[1];
+            String capsuleContent = params[2];
+            String userId = params[3];
+            String makeDate = params[4];
             try {
                 URL url = new URL(img_url);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -194,8 +194,7 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
                 httpURLConnection.setDoInput(true);
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                String data = URLEncoder.encode("img", "UTF-8") + "=" + URLEncoder.encode(img,"UTF-8")+"&"+
-                        URLEncoder.encode("imgName", "UTF-8") + "=" + URLEncoder.encode(imgName,"UTF-8")+"&"+
+                String data = URLEncoder.encode("imgName", "UTF-8") + "=" + URLEncoder.encode(imgName,"UTF-8")+"&"+
                         URLEncoder.encode("capsuleContent", "UTF-8") + "=" + URLEncoder.encode(capsuleContent,"UTF-8")+"&"+
                         URLEncoder.encode("owner", "UTF-8") + "=" + URLEncoder.encode(userId,"UTF-8")+"&"+
                         URLEncoder.encode("makedate", "UTF-8") + "=" + URLEncoder.encode(makeDate,"UTF-8");
@@ -205,7 +204,7 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
                 outputStream.close();
 
                 InputStream inputStream = httpURLConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
                 String response = "";
                 String line = "";
 

@@ -28,6 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -35,18 +37,23 @@ import com.example.ahn.finalproject.GlobalValues.Main;
 import com.example.ahn.finalproject.MainLogin.BackgroundTask;
 import com.example.ahn.finalproject.MainLogin.R;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage;
@@ -56,16 +63,18 @@ import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotate
  */
 
 public class CapsulePrivateMainFragment extends Fragment {
+    String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
     final static private String TAG = "@@@";
     static private Button privateGallery, privateCamera, privateMake;
     static private int REQ_CODE_SELECT_IMAGE = 100;
     static private int REQ_CODE_CAPTURE_IMAGE = 101;
     Uri albumImage, fileUri, picUri;
-    Bitmap image_bitmap;
+    Bitmap image_bitmap; //1장처리
+
     Bitmap bitmap;
     String imgPath;
     String imgName, executeName;
-    StringBuilder encodedString;
+    StringBuilder[] encodedString = new StringBuilder[99];
     View view;
     ImageView image; //사진 미리보기 역할해주는 변수
     EditText capsulePrivateLetter;
@@ -79,6 +88,19 @@ public class CapsulePrivateMainFragment extends Fragment {
 
     private final static int ALL_PERMISSIONS_RESULT = 107;
 
+    /****************멀티처리  변수 *********************/
+    String Item;
+    ImageView iv;
+    HorizontalScrollView scrollBtn;
+    FrameLayout linearBottom;
+    ArrayList<FrameLayout> frameLayoutList;
+    Bitmap[] multi_bitmap = new Bitmap[99];  //멀티이미지
+    ArrayList<String> multiArray = new ArrayList<>(); //이미지 패스 담아놓는 리스트
+    ArrayList<String> multiName = new ArrayList<>(); //이미지 이름.확장자 담아놓는 리스트
+    ArrayList<String> multiExe = new ArrayList<>(); //확장자 담아놓는 리스트
+
+    String[] multiImgName = new String[99];  //Async할 떄 List를 못 보냄
+    /***************************************************/
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_private_capsule, container, false);
@@ -92,6 +114,13 @@ public class CapsulePrivateMainFragment extends Fragment {
 
         permissions.add(WRITE_EXTERNAL_STORAGE);
         permissionsToRequest = findUnAskedPermissions(permissions);
+
+        /*******************멀티 변수*****************/
+        linearBottom = (FrameLayout) view.findViewById(R.id.layBtm);
+        scrollBtn = (HorizontalScrollView) view.findViewById(R.id.hzScroll);
+        //bottom 스크롤뷰 추가
+        frameLayoutList = new ArrayList();
+        /********************************************/
         //get the permissions we have asked for before but are not granted..
         //we will store this in a global list to access later.
 
@@ -108,7 +137,11 @@ public class CapsulePrivateMainFragment extends Fragment {
         @Override
         public void onClick(View view){
             if(view.getId() == R.id.privateGallery){
-                Intent intent = new Intent(Intent.ACTION_PICK);
+                /*Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+                intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQ_CODE_SELECT_IMAGE);*/
+                Intent intent = new Intent(getContext(), MultiPhotoSelectActivity.class);
                 intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
                 intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, REQ_CODE_SELECT_IMAGE);
@@ -120,17 +153,17 @@ public class CapsulePrivateMainFragment extends Fragment {
                 startActivityForResult(intent, REQ_CODE_CAPTURE_IMAGE);*/
             }else if(view.getId() == R.id.privateMake){
                 // When Image is selected from Gallery
-                if (imgPath != null && !imgPath.isEmpty()) {
+                //if (imgPath != null && !imgPath.isEmpty()) {
                     Log.e("Converting Image to ","Binary Data");
                     // Convert image to String using Base64
                     encodeImagetoString();
                     // When Image is not selected from Gallery
-                } else {
+               /* } else {
                     Toast.makeText(
                             getContext(),
                             "You must select image from gallery before you try to upload",
                             Toast.LENGTH_LONG).show();
-                }
+                }*/
             }/*else if(view.getId() == R.id.login_btn_login){
                 loginUser(input_email.getText().toString(), input_password.getText().toString());
             }*/
@@ -175,31 +208,70 @@ public class CapsulePrivateMainFragment extends Fragment {
             {
                 try {
                     //cpa.test(data);
+                    /*Bundle args = getArguments();
+                    Toast.makeText(getContext(), "args: " + args.getString("selectItem"), Toast.LENGTH_LONG).show();*/
 
-                    //Uri에서 이미지 이름을 얻어온다.
-                    String name_Str = getImageNameToUri(data.getData());
+                    Intent intent = getActivity().getIntent();
+
+                    int pictureCount = Integer.parseInt(data.getExtras().get("size").toString());
+
+                    Toast.makeText(getContext(), "args: (INTENT) " + data.getExtras().get("selectItem"), Toast.LENGTH_LONG).show();
+
+                    //Uri item = Uri.parse("file://"+data.getExtras().get("selectItem").toString());
+
+                    Log.e("@@@", "data.getData()    " + data.getData());
+                    /*String name_Str = getImageNameToUri(data.getData());
                     imgName=name_Str;
-                    Log.e("fileName : ",name_Str);
+                    Log.e("fileName : ",name_Str);*/
                     //이미지 데이터를 비트맵으로 받아온다.
-                    image_bitmap 	= MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
-                    //bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
-                    image = (ImageView) view.findViewById(R.id.privateImgView);
 
-                    //배치해놓은 ImageView에 set
-                    image.setImageBitmap(image_bitmap);
+                    String[] multiPath = data.getExtras().get("selectItem").toString().split(",");
+                    Log.e("MultiPath : ", ""+multiPath[0]);
+                    Log.e("pictureCount : ", ""+pictureCount);
+                    //image_bitmap 	= MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), data.getData());
+                    for(int i=0; i<pictureCount;i++) {
+                        Uri item = Uri.parse("file://"+multiPath[i]);
+                        multiArray.add(multiPath[i]);
+                        multi_bitmap[i] = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), item);
+                        multi_bitmap[i] = rotateImageIfRequired(multi_bitmap[i], item);
+                        multi_bitmap[i] = getResizedBitmap(multi_bitmap[i], 500);
 
+                        multiName.add(multiArray.get(i).substring(multiArray.get(i).lastIndexOf("/")+1));
+                        multiExe.add(multiName.get(i).substring(multiName.get(i).lastIndexOf(".")+1));
+                        Log.e("multiName : ", ""+multiName);
+                        Log.e("multiExe : ", ""+multiExe);
+                        //bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                        //**image = (ImageView) view.findViewById(R.id.privateImgView);**//
+
+                        iv = new ImageView(getContext());
+
+                        //배치해놓은 ImageView에 set
+                        //image.setImageBitmap(multi_bitmap[i]);
+                        iv.setImageBitmap(multi_bitmap[i]);
+                        //image.setLayoutParams(new FrameLayout.LayoutParams(200, 200));
+                        iv.setLayoutParams(new FrameLayout.LayoutParams(200,200));
+
+                        ViewGroup.MarginLayoutParams margin = new ViewGroup.MarginLayoutParams(iv.getLayoutParams());
+                        margin.setMargins(200 * multiArray.size()-1, 0, 0, 0);
+                        iv.setLayoutParams(new FrameLayout.LayoutParams(margin));
+
+                        FrameLayout frameLayout = new FrameLayout(getContext());
+                        frameLayout.addView(iv);
+                        frameLayoutList.add(frameLayout);
+                        linearBottom.addView(frameLayout);
+                        scrollBtn.smoothScrollBy(200, 0);
+                    }
 
                     //Toast.makeText(getBaseContext(), "name_Str : "+name_Str , Toast.LENGTH_SHORT).show();
 
 
-                } catch (FileNotFoundException e) {
+                }/* catch (FileNotFoundException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-                } catch (Exception e)
-                {
+                }*/ catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -217,27 +289,54 @@ public class CapsulePrivateMainFragment extends Fragment {
                 e.printStackTrace();
             }
             image.setImageBitmap(bm);*/
-            image = (ImageView) view.findViewById(R.id.privateImgView);
+            //image = (ImageView) view.findViewById(R.id.privateImgView);
 
             if (getPickImageResultUri(data) != null) {
                 picUri = getPickImageResultUri(data);
+                //picUri = Uri.parse( "file://"+picUri.toString());
 
                 try {
-                    image_bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), picUri);
-                    image_bitmap = rotateImageIfRequired(image_bitmap, picUri);
-                    image_bitmap = getResizedBitmap(image_bitmap, 500);
+                    Log.e("picUri : ", ""+picUri);
+                    multi_bitmap[multiArray.size()] = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), picUri);
+                    multi_bitmap[multiArray.size()] = rotateImageIfRequired(multi_bitmap[multiArray.size()], picUri);
+                    multi_bitmap[multiArray.size()] = getResizedBitmap(multi_bitmap[multiArray.size()], 500);
 
                     imgPath = picUri.toString();
                     imgPath = imgPath.replace("file://", "");
+
+                    multiArray.add(imgPath);
+                    multiName.add(multiArray.get(multiArray.size()-1).substring(multiArray.get(multiArray.size()-1).lastIndexOf("/")+1));
+                    multiExe.add(multiName.get(multiArray.size()-1).substring(multiName.get(multiArray.size()-1).lastIndexOf(".")+1));
+
                     //imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
-                    imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
+                    /*imgName = imgPath.substring(imgPath.lastIndexOf("/")+1);
+                    Log.e("Data : ",""+data);
+                    Log.e("ImagePath : ",imgPath);
                     Log.e("ImageName : ",imgName);
                     Toast.makeText(getContext(),""+imgName, Toast.LENGTH_LONG).show();
-                    executeName = imgName.substring(imgName.lastIndexOf(".")+1);
+                    executeName = imgName.substring(imgName.lastIndexOf(".")+1);*/
 
-                    CircleImageView croppedImageView = (CircleImageView) view.findViewById(R.id.img_profile);
+                    iv = new ImageView(getContext());
+
+                    //배치해놓은 ImageView에 set
+                    //image.setImageBitmap(multi_bitmap[i]);
+                    iv.setImageBitmap(multi_bitmap[multiArray.size()-1]);
+                    //image.setLayoutParams(new FrameLayout.LayoutParams(200, 200));
+                    iv.setLayoutParams(new FrameLayout.LayoutParams(200,200));
+
+                    ViewGroup.MarginLayoutParams margin = new ViewGroup.MarginLayoutParams(iv.getLayoutParams());
+                    margin.setMargins(200 * multiArray.size()-1, 0, 0, 0);
+                    iv.setLayoutParams(new FrameLayout.LayoutParams(margin));
+
+                    FrameLayout frameLayout = new FrameLayout(getContext());
+                    frameLayout.addView(iv);
+                    frameLayoutList.add(frameLayout);
+                    linearBottom.addView(frameLayout);
+                    scrollBtn.smoothScrollBy(200, 0);
+
+                   /* CircleImageView croppedImageView = (CircleImageView) view.findViewById(R.id.img_profile);
                     croppedImageView.setImageBitmap(image_bitmap);
-                    image.setImageBitmap(image_bitmap);
+                    image.setImageBitmap(image_bitmap);*/
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -245,14 +344,14 @@ public class CapsulePrivateMainFragment extends Fragment {
 
 
             } else {
-                bitmap = (Bitmap) data.getExtras().get("data");
+                /*bitmap = (Bitmap) data.getExtras().get("data");
 
                 image_bitmap = bitmap;
                 CircleImageView croppedImageView = (CircleImageView) view.findViewById(R.id.img_profile);
                 if (croppedImageView != null) {
                     croppedImageView.setImageBitmap(image_bitmap);
                 }
-                image.setImageBitmap(image_bitmap);
+                image.setImageBitmap(image_bitmap);*/
             }
         }
     }
@@ -273,17 +372,21 @@ public class CapsulePrivateMainFragment extends Fragment {
                 BitmapFactory.Options options = null;
                 options = new BitmapFactory.Options();
                 options.inSampleSize = 3;
-                bitmap = BitmapFactory.decodeFile(imgPath, options);
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                // Must compress the Image to reduce image size to make upload easy
-                if(executeName.equals("png"))
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
-                else if(executeName.equals("jpg") || executeName.equals("jpeg"))
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
-                byte[] byte_arr = stream.toByteArray();
-                // Encode Image to String
-                encodedString = new StringBuilder(Base64.encodeToString(byte_arr, 0));
+                for(int i=0;i<multiArray.size();i++) {
+                    bitmap = BitmapFactory.decodeFile(multiArray.get(i), options);
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    // Must compress the Image to reduce image size to make upload easy
+                    if (multiExe.get(i).equals("png"))
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
+                    else if (multiExe.get(i).equals("jpg") || multiExe.get(i).equals("jpeg"))
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                    byte[] byte_arr = stream.toByteArray();
+                    // Encode Image to String
+                    encodedString[i] = new StringBuilder(Base64.encodeToString(byte_arr, 0));
+                    multiImgName[i] = multiName.get(i);
+                }
                 return "";
             }
 
@@ -303,11 +406,28 @@ public class CapsulePrivateMainFragment extends Fragment {
         String userId = Main.getUserId(); //현재 사용자 아이디
         String date = getDate(); //캡슐 만든 날짜
 
+        //*************사진 업로드하는 곳 ************************/
+        Log.e("EncodedString.length : " , ""+encodedString.length);
+        for(int i=0;i<multiArray.size();i++) {
+            ImgUpload imgUpload = new ImgUpload();
+            imgUpload.execute(encodedString[i].toString(), multiName.get(i));
+        }
+        /********************************************************/
+
         try {
-            String result = backgroundTask.execute("makePrivateCapsule",encodedString.toString(),imgName,capsuleContent, userId, date).get(); //개인 캡슐 서버로 넘기는곳
+            Log.e("EncodedString : ", encodedString.toString());
+            String imgsName="";
+            for(int i=0;i<multiName.size();i++){
+                if(i!=multiName.size()-1)
+                    imgsName += "/usr/local/nodeServer/public/images/"+multiName.get(i) + ",";
+                else
+                    imgsName += "/usr/local/nodeServer/public/images/"+multiName.get(i);
+            }
+            //String result = backgroundTask.execute("makePrivateCapsule",encodedString.toString(),imgName,capsuleContent, userId, date).get(); //개인 캡슐 서버로 넘기는곳
+            String result = backgroundTask.execute("makePrivateCapsule", imgsName,capsuleContent, userId, date).get();
             if(result.equals("success")){  //캡슐이 성공적으로 보내졌다면
                 progressDialog.dismiss();
-                image.setImageBitmap(null);  //이미지 공백으로
+                //image.setImageBitmap(null);  //이미지 공백으로
                 capsulePrivateLetter.setText("");  //텍스트뷰 공백으로
             }
         } catch (InterruptedException e) {
@@ -407,8 +527,7 @@ public class CapsulePrivateMainFragment extends Fragment {
         Uri outputFileUri = null;
         File getImage = getActivity().getExternalCacheDir();
         if (getImage != null) {
-
-            outputFileUri = Uri.fromFile(new File(getImage.getPath(), "profile.png"));
+            outputFileUri = Uri.fromFile(new File(getImage.getPath(), "IMG_"+timeStamp+ ".png"));
         }
         return outputFileUri;
     }
@@ -543,5 +662,62 @@ public class CapsulePrivateMainFragment extends Fragment {
                 break;
         }
 
+    }
+
+    /*public static CapsulePrivateMainFragment newInstance(int index) {
+        CapsulePrivateMainFragment f = new CapsulePrivateMainFragment();
+
+        // Supply index input as an argument.
+        Bundle args = new Bundle();
+        args.putInt("selectItem", index);
+        f.setArguments(args);
+
+        return f;
+    }*/
+
+    /***************************************
+     * invite 값 체크하는 곳
+     **************************************/
+
+    class ImgUpload extends AsyncTask<String, Integer, String> {
+        URL url;
+        //HttpURLConnection conn;
+        String line;
+        int menuSeq;
+
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            BufferedReader bufferedReader = null;
+            line = "";
+            String userId = Main.getUserId();
+            try {
+                url = new URL("http://210.123.254.219:3001" + "/imgUpload");
+                //conn = (HttpURLConnection) url.openConnection();
+
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+
+                String data = URLEncoder.encode("img", "UTF-8") + "=" + URLEncoder.encode(urls[0],"UTF-8")+ "&" +
+                        URLEncoder.encode("imgName", "UTF-8") + "=" + URLEncoder.encode(urls[1],"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8"));
+                line = br.readLine();
+                Log.d("@@@@@", "CheckInviteStatusLine@@@@"+line);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            Log.e("line",line);
+            return line;
+        }
     }
 }

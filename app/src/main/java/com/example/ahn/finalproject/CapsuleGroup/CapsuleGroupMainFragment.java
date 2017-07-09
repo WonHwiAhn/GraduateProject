@@ -372,7 +372,7 @@ public class CapsuleGroupMainFragment extends Fragment {
     private void showGPSDisabledAlertToUser()
     {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setMessage("GPS가 비활성화 되어있습니다. 활성화 할까요?")
+        alertDialogBuilder.setMessage("GPS가 비활성화 되어있습니다. 활성화 할까요?\n 활성화하지 않으면 단체캡슐 서비스를 이용할 수 없습니다.")
                 .setCancelable(false)
                 .setPositiveButton("설정", new DialogInterface.OnClickListener()
                 {
@@ -449,6 +449,7 @@ public class CapsuleGroupMainFragment extends Fragment {
                         nameArray.clear();
                         distanceArray.clear();
                         imgArray.clear();
+                        imgPath.clear();
                         for (int i = 0; i < eachUser.length; i++) {
                             nameArray.add(eachUser[i].split(",")[0]);
                             distanceArray.add(eachUser[i].split(",")[1]);

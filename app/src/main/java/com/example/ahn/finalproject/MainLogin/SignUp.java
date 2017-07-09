@@ -621,14 +621,10 @@ public class SignUp extends AppCompatActivity {
                     if (hasPermission(perms)) {
 
                     } else {
-
                         permissionsRejected.add(perms);
                     }
                 }
-
                 if (permissionsRejected.size() > 0) {
-
-
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (shouldShowRequestPermissionRationale(permissionsRejected.get(0))) {
                             showMessageOKCancel("These permissions are mandatory for the application. Please allow access.",
@@ -636,9 +632,7 @@ public class SignUp extends AppCompatActivity {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
                                                 //Log.d("API123", "permisionrejected " + permissionsRejected.size());
-
                                                 requestPermissions(permissionsRejected.toArray(new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
                                             }
                                         }
@@ -646,9 +640,7 @@ public class SignUp extends AppCompatActivity {
                             return;
                         }
                     }
-
                 }
-
                 break;
         }
         /*switch (requestCode){

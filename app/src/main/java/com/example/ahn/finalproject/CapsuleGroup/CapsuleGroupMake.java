@@ -62,8 +62,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage;
@@ -465,14 +463,14 @@ public class CapsuleGroupMake extends AppCompatActivity{
 
 
             } else {
-                bitmap = (Bitmap) data.getExtras().get("data");
+                /*bitmap = (Bitmap) data.getExtras().get("data");
 
                 image_bitmap = bitmap;
                 CircleImageView croppedImageView = (CircleImageView) findViewById(R.id.img_profile);
                 if (croppedImageView != null) {
                     croppedImageView.setImageBitmap(image_bitmap);
                 }
-                image.setImageBitmap(image_bitmap);
+                image.setImageBitmap(image_bitmap);*/
             }
         }
     }
@@ -480,7 +478,7 @@ public class CapsuleGroupMake extends AppCompatActivity{
     /***************************************
      * invite 값 체크하는 곳
      **************************************/
-
+   //159
     class CheckInviteStatus extends AsyncTask<String, Integer, String> {
         URL url;
         //HttpURLConnection conn;
@@ -789,7 +787,8 @@ public class CapsuleGroupMake extends AppCompatActivity{
           }else
               textShow3.setText("[ "+total+" / " + userSize.length + " ]");
 
-          textShow4.setText("남은시간: "+time + "초");
+          if(time>=0)
+            textShow4.setText("남은시간: "+time + "초");
 
           if(time==0 && acceptUserSize==0) {  //시간초가 다 된 상태에서 수락한 사람이 아무도 없을 때
               textShow3.setText("아무도 수락한 사람이 없습니다.    5초 뒤 메인페이지로이동합니다.");

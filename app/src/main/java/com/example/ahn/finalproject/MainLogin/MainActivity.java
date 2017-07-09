@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                         autoLogin.putString("inputId", id);
                         autoLogin.putString("inputIdx", idx);
                         autoLogin.putString("inputProfile", imgPath);
-                        //꼭 commit()을 해줘야 값이 저장됩니다 ㅎㅎ
+                        //꼭 commit()을 해줘야 값이 저장됨 ㅎㅎ
                         autoLogin.commit();
                         intent.putExtra("id", id);
                         intent.putExtra("idx", idx);

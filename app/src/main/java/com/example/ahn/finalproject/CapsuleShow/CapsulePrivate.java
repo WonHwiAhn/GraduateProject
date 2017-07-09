@@ -5,13 +5,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,10 +18,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.ahn.finalproject.MainLogin.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -39,16 +41,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,9 +52,15 @@ import java.util.Locale;
 public class CapsulePrivate extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener, OnMapReadyCallback{
+    /***************** 동적 이미지뷰 ******************/
+    LinearLayout linearGroup;
+    ImageView imageContent;
+    LinearLayout rl1;
+    String picturepath;
+    /**************************************************/
     private static final String TAG = "@@@";
     Bitmap bmImg;
-    ImageView capsulePrivateImg;
+    //ImageView capsulePrivateImg;
     TextView capsuleContent;
     MapFragment mapFragment;
     boolean setGPS = false;
@@ -97,15 +96,11 @@ public class CapsulePrivate extends AppCompatActivity implements
         public void onMapLoaded() {
             Log.d( TAG, "onMapLoaded" );
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
                 checkLocationPermission();
             }
-            else
-            {
-
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !setGPS)
-                {
+            else{
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !setGPS){
                     Log.d(TAG, "onMapLoaded");
                     showGPSDisabledAlertToUser();
                 }
@@ -156,20 +151,28 @@ public class CapsulePrivate extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.capsule_private);
 
-        capsulePrivateImg = (ImageView) findViewById(R.id.capsulePrivateImg);
+        //capsulePrivateImg = (ImageView) findViewById(R.id.capsulePrivateImg);
         capsuleContent = (TextView) findViewById(R.id.capsuleContent);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        linearGroup = (LinearLayout) findViewById(R.id.linearGroup);
         Intent intent = getIntent();
 
         String idx = intent.getStringExtra("idx");
         String owner = intent.getStringExtra("owner");
-        String picturepath = intent.getStringExtra("picturepath");
+        picturepath = intent.getStringExtra("picturepath");
         String content = intent.getStringExtra("content");
+        String makedate = intent.getStringExtra("makedate");
 
-        capsuleContent.setText(content);
+        capsuleContent.setText(makedate+"에 내가 썻던 글\n"+content+"\n-------내가 올린 사진들---------");
+        linearGroup.post(new Runnable() {
+            @Override
+            public void run() {
+                linearGroup.removeAllViews();
+                writeContent(picturepath);
+            }
+        });
 
         /*BackgroundTask backgroundTask = new BackgroundTask(getApplication());
         try {
@@ -184,11 +187,11 @@ public class CapsulePrivate extends AppCompatActivity implements
         }*/
 
 
-        GetImg gi = new GetImg();
+        //GetImg gi = new GetImg();
 
         // imgName = picturepath.substring(picturepath.lastIndexOf("/"));
 
-        gi.execute("http://210.123.254.219:3001" + "/getImg",picturepath);
+        //gi.execute("http://210.123.254.219:3001" + "/getImg",picturepath);
     }
 
     //GPS 활성화를 위한 다이얼로그 보여주기
@@ -514,7 +517,7 @@ public class CapsulePrivate extends AppCompatActivity implements
 
 
 
-    private class GetImg extends AsyncTask<String, Integer, Bitmap>{
+    /*private class GetImg extends AsyncTask<String, Integer, Bitmap>{
         @Override
         protected Bitmap doInBackground(String... url) {
             try{
@@ -551,6 +554,111 @@ public class CapsulePrivate extends AppCompatActivity implements
         }
         protected void onPostExecute(Bitmap img){
             capsulePrivateImg.setImageBitmap(bmImg);
+        }
+    }*/
+
+    public void writeContent(String picturePath){
+
+        String[] img = picturePath.split(",");
+
+        /************************************************************
+         * 단체 캡슐에 입력된 사진 뽑아내는 곳
+         ***********************************************************/
+
+        for(int i=0; i<img.length; i++) {
+            rl1 = new LinearLayout(getApplicationContext());
+            rl1.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(linearGroup.getLayoutParams().width, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+            // RelativeLayout에 width, height 설정 적용
+            rl1.setLayoutParams(params);
+
+            //차이드 생성 (내용)
+            imageContent = new ImageView(getApplicationContext());
+            /*RelativeLayout.LayoutParams textContentParams = new RelativeLayout.LayoutParams
+                    (rl1.getLayoutParams().width, ViewGroup.LayoutParams.WRAP_CONTENT);*/
+
+            FrameLayout.LayoutParams frameLayout = new FrameLayout.LayoutParams(1000, 600);
+            frameLayout.setMargins(linearGroup.getWidth()-linearGroup.getWidth()/2-500, 80, 0,0);
+            imageContent.setLayoutParams(frameLayout);
+            //textContentParams.addRule(RelativeLayout.BELOW, i);
+            //imageContent.setLayoutParams(textContentParams);
+            imageContent.setId(i+1);
+            imageContent.setScaleType(ImageView.ScaleType.CENTER);
+
+            //text.setWidth(rl.getLayoutParams().width);
+            //Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL
+            img[i] = img[i].replace("/usr/local/nodeServer/public", "http://210.123.254.219:3001");
+            /*Bitmap bmImg = BitmapFactory.decodeFile(picturepathArray[i]);
+            imageContent.setImageBitmap(bmImg);*/
+
+            Glide.with(getApplicationContext()).load(img[i]).into(imageContent);
+            /*byte [] encodeByte= Base64.decode(picture,Base64.DEFAULT);
+            Bitmap bitmap=BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            imageContent.setImageBitmap(bitmap);*/
+           /* new Thread(){
+                public void run(){
+                   Bitmap bitmap = getBitmapFromURL(picture);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("test", bitmap);
+                }
+            }.start();*/
+            /*rl1.post(new Runnable() {
+                @Override
+                public void run() {
+                    Bitmap bitmap = getBitmapFromURL(picture);
+                    imageContent.setImageBitmap(bitmap);
+                }
+            });*/
+
+
+            //t.start();
+
+            /*rl1.post(new Runnable() {
+                @Override
+                public void run() {
+                    rl1.removeAllViews();
+                    uploadImg();
+                }
+            });*/
+
+            /*GetImg getImg = new GetImg();
+            Bitmap test;
+
+                getImg.execute(picture);*/
+            /*rl1.post(new Runnable() {
+                @Override
+                public void run() {
+                    rl1.removeAllViews();
+                    uploadImg();
+                }
+            });*/
+            //imageContent.setImageBitmap(test);
+
+
+
+            /*GetPicture getPicture = new GetPicture();
+            getPicture.setDaemon(true);
+            getPicture.start();*/
+
+
+            //Log.e("@@@", "textContent@@@" + contentArray[i+1] + "    imagepicture @@@@" + picturepathArray[i]);
+
+
+            //imageContent.setImageBitmap(Glide.with(getApplicationContext()).load(picture));
+
+            FrameLayout frameLayout1 = new FrameLayout(getApplicationContext());
+            //frameLayout.addView(iv);
+
+            /*frameLayout1.addView(rl1);
+            linearGroup.addView(frameLayout1);*/
+
+            //rl1.addView(pictureUser);
+            //rl1.addView(imageContent);
+
+            //frameLayout1.addView(rl1);
+            frameLayout1.addView(imageContent);
+            linearGroup.addView(frameLayout1);
         }
     }
 }

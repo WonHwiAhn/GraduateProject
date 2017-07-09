@@ -17,8 +17,8 @@
             android:hint="타임캡슐에 저장할 글을 입력해주세요."
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:layout_weight="0.99" />
-        <LinearLayout
+            android:layout_weight="0.4" />
+        <!--<LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -36,7 +36,19 @@
                 app:civ_border_color="#FFFFFF"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true" />
-        </LinearLayout>
+        </LinearLayout>-->
+
+        <HorizontalScrollView
+            android:id="@+id/hzScroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5">
+            <FrameLayout
+                android:id="@+id/layBtm"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/picture_list1"></FrameLayout>
+        </HorizontalScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"

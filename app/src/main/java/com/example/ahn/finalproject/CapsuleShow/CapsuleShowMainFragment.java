@@ -213,6 +213,7 @@ public class CapsuleShowMainFragment extends Fragment {
                             intent.putExtra("owner", jsonObject.getString("owner"));
                             intent.putExtra("content", jsonObject.getString("content"));
                             intent.putExtra("picturepath", jsonObject.getString("picturepath"));
+                            intent.putExtra("makedate", jsonObject.getString("makedate"));
                             startActivityForResult(intent, 1);
                         } catch (JSONException e) {
                             e.printStackTrace();

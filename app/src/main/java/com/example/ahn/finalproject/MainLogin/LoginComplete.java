@@ -60,6 +60,7 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
     View navHeader;
     ArrayList<String> fId;
     ArrayList<String> fStatus;
+    boolean friendStatus = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,10 +163,13 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         navText01.setText(userId + "님 환영해요:)");
 
         friendCount = (TextView) findViewById(R.id.friendCount);
-        if(!result.equals("noFriends"))
+        if(!result.equals("noFriends")) {
+            friendStatus = true;
             friendCount.setText("현재 수락 대기 친구는? " + fStatus.size() + "명 입니다.");
-        else
+        }else {
+            friendStatus = false;
             friendCount.setText("현재 수락 대기 친구는? 0명 입니다.");
+        }
 
         /*getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         ActionBar actionBar = getActionBar();
@@ -686,20 +690,22 @@ public class LoginComplete extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    public void addFriend(View view){
-        if(fStatus.size() == 0)
-            Toast.makeText(getApplicationContext(), "확인할 요청이 없습니다.", Toast.LENGTH_LONG).show();
-        else {
+    public void addFriend(View view){ //친구 추가 버튼
+
             Intent intent = new Intent(getApplicationContext(), AddFriend.class);
             startActivityForResult(intent, ADD_FRIEND_CODE);
             finish();
-        }
+
     }
 
-    public void moveFriend(View view){
-        Intent intent = new Intent(getApplicationContext(), RequestFriend.class);
-        startActivityForResult(intent, REQUEST_FRIEND_CODE);
-        finish();
-        Toast.makeText(getApplicationContext(), "확인", Toast.LENGTH_LONG).show();
+    public void moveFriend(View view){ //요청 친구 확인 버튼
+        if(!friendStatus)
+            Toast.makeText(getApplicationContext(), "확인할 요청이 없습니다.", Toast.LENGTH_LONG).show();
+        else {
+            Intent intent = new Intent(getApplicationContext(), RequestFriend.class);
+            startActivityForResult(intent, REQUEST_FRIEND_CODE);
+            finish();
+            Toast.makeText(getApplicationContext(), "확인", Toast.LENGTH_LONG).show();
+        }
     }
 }
